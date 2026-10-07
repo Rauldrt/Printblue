@@ -6,78 +6,19 @@
     <title>PrintLabel Pro - Generador e Impresor de Etiquetas</title>
     
     <!-- Metadatos PWA -->
-    <meta name="description" content="Generador y gestor de etiquetas de código de barras y QR para impresoras térmicas y Bluetooth. Funciona 100% offline.">
+    <meta name="description" content="Generador y gestor de etiquetas de código de barras y QR para impresoras térmicas y Bluetooth con integración a Google Drive.">
     <meta name="theme-color" content="#4f46e5">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="PrintLabel Pro">
     
     <!-- Enlaces Manifiesto e Iconos -->
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
-    <link rel="alternate icon" href="icons/icon-192.png">
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+    <link rel="alternate icon" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Librerías de Código de Barras y QR -->
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <!-- Iconos FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Libre+Barcode+128&display=swap');
-
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-
-        .barcode-font {
-            font-family: 'Libre Barcode 128', cursive;
-        }
-
-        /* Reglas especiales para la impresión exacta de etiquetas */
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            #print-area, #print-area * {
-                visibility: visible;
-            }
-            #print-area {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                margin: 0;
-                padding: 0;
-                background: white;
-            }
-            .no-print {
-                display: none !important;
-            }
-            .page-break {
-                page-break-after: always;
-                break-after: page;
-            }
-            @page {
-                margin: 0;
-                size: auto;
-            }
-        }
-
-        /* Efecto de sombra para el rollo/etiqueta */
-        .label-preview-shadow {
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Fondo simulado de papel térmico */
-        .thermal-paper {
-            background-color: #ffffff;
-            border: 1px dashed #cbd5e1;
-        }
-    </style>
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased select-none sm:select-auto">
 
@@ -94,18 +35,22 @@
                             <i class="fa-solid fa-wifi mr-1"></i>Offline
                         </span>
                     </div>
-                    <p class="text-xs text-slate-400">Etiquetas para Impresoras Bluetooth y Térmicas</p>
+                    <p class="text-xs text-slate-400">Etiquetas Térmicas, Bluetooth & Google Drive</p>
                 </div>
             </div>
 
             <!-- Botones de Acción Rápida -->
             <div class="flex items-center space-x-2 sm:space-x-3">
-                <!-- Botón de Instalación PWA (se muestra cuando el navegador lo permite) -->
+                <!-- Estado de Autenticación de Google / Firebase -->
+                <div id="user-auth-status"></div>
+
+                <!-- Botón de Instalación PWA -->
                 <button id="pwa-install-btn" onclick="installPWA()" class="hidden items-center space-x-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm px-3 py-2 rounded-lg transition shadow-sm font-semibold">
                     <i class="fa-solid fa-download"></i>
                     <span class="hidden sm:inline">Instalar App</span>
                 </button>
 
+                <!-- Conexión Bluetooth -->
                 <button id="bt-connect-btn" onclick="connectBluetoothPrinter()" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm px-3 py-2 rounded-lg transition shadow-sm">
                     <i class="fa-brands fa-bluetooth-b text-blue-400"></i>
                     <span id="bt-status-text" class="hidden sm:inline">Conectar BT</span>
@@ -149,19 +94,19 @@
                     <!-- Nombre del Producto -->
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre / Título del Producto</label>
-                        <input type="text" id="inp-title" value="Remera Algodón Talle M" oninput="updatePreview()" class="w-full text-sm border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2.5 border" placeholder="Ej: Café Orgánico 500g">
+                        <input type="text" id="inp-title" value="Remera Algodón Talle M" class="w-full text-sm border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2.5 border" placeholder="Ej: Café Orgánico 500g">
                     </div>
 
                     <!-- Código de Barras / SKU -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Código / SKU / EAN</label>
-                            <input type="text" id="inp-code" value="779123456789" oninput="updatePreview()" class="w-full text-sm border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2.5 border font-mono" placeholder="12345678">
+                            <input type="text" id="inp-code" value="779123456789" class="w-full text-sm border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2.5 border font-mono" placeholder="12345678">
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Tipo de Código</label>
-                            <select id="inp-symbology" onchange="updatePreview()" class="w-full text-sm border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2.5 border bg-white">
+                            <select id="inp-symbology" class="w-full text-sm border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2.5 border bg-white">
                                 <option value="CODE128">Code 128 (Uso Interno/SKU)</option>
                                 <option value="EAN13">EAN-13 (Comercial 13 dígitos)</option>
                                 <option value="EAN8">EAN-8 (8 dígitos)</option>
@@ -176,18 +121,18 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Precio</label>
-                            <input type="text" id="inp-price" value="4500" oninput="updatePreview()" class="w-full text-sm border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2.5 border" placeholder="Ej: 1500.00">
+                            <input type="text" id="inp-price" value="4500" class="w-full text-sm border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2.5 border" placeholder="Ej: 1500.00">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Símbolo / Moneda</label>
-                            <input type="text" id="inp-currency" value="$" oninput="updatePreview()" class="w-full text-sm border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2.5 border" placeholder="Ej: $ o U$S">
+                            <input type="text" id="inp-currency" value="$" class="w-full text-sm border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2.5 border" placeholder="Ej: $ o U$S">
                         </div>
                     </div>
 
                     <!-- Texto Secundario u Adicional -->
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Texto Adicional (Opcional)</label>
-                        <input type="text" id="inp-extra" value="Mi Tienda - Hecho en Argentina" oninput="updatePreview()" class="w-full text-sm border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2.5 border" placeholder="Ej: Lote 104 - Venc: 12/26">
+                        <input type="text" id="inp-extra" value="Mi Tienda - Hecho en Argentina" class="w-full text-sm border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2.5 border" placeholder="Ej: Lote 104 - Venc: 12/26">
                     </div>
 
                     <!-- Cantidad a Imprimir -->
@@ -206,19 +151,19 @@
                     <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Opciones de Apariencia</h3>
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <label class="flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" id="chk-show-title" checked onchange="updatePreview()" class="rounded text-indigo-600 focus:ring-indigo-500">
+                            <input type="checkbox" id="chk-show-title" checked class="rounded text-indigo-600 focus:ring-indigo-500">
                             <span>Mostrar Título</span>
                         </label>
                         <label class="flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" id="chk-show-price" checked onchange="updatePreview()" class="rounded text-indigo-600 focus:ring-indigo-500">
+                            <input type="checkbox" id="chk-show-price" checked class="rounded text-indigo-600 focus:ring-indigo-500">
                             <span>Mostrar Precio</span>
                         </label>
                         <label class="flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" id="chk-show-extra" checked onchange="updatePreview()" class="rounded text-indigo-600 focus:ring-indigo-500">
+                            <input type="checkbox" id="chk-show-extra" checked class="rounded text-indigo-600 focus:ring-indigo-500">
                             <span>Mostrar Texto Extra</span>
                         </label>
                         <label class="flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" id="chk-bold-price" checked onchange="updatePreview()" class="rounded text-indigo-600 focus:ring-indigo-500">
+                            <input type="checkbox" id="chk-bold-price" checked class="rounded text-indigo-600 focus:ring-indigo-500">
                             <span>Precio Destacado</span>
                         </label>
                     </div>
@@ -234,12 +179,10 @@
                     </span>
 
                     <!-- Contenedor dinámico de la Etiqueta Térmica -->
-                    <div id="label-container" class="thermal-paper label-preview-shadow rounded-sm p-2 flex flex-col items-center justify-between text-center transition-all duration-200 overflow-hidden box-border">
-                        <!-- El contenido se renderiza por JavaScript -->
-                    </div>
+                    <div id="label-container" class="thermal-paper label-preview-shadow rounded-sm p-2 flex flex-col items-center justify-between text-center transition-all duration-200 overflow-hidden box-border"></div>
 
                     <p class="mt-4 text-xs text-slate-500 text-center">
-                        La vista previa refleja la proporción exacta seleccionada en la configuración de papel.
+                        La vista previa refleja la proporción exacta configurada para el papel.
                     </p>
                 </div>
 
@@ -262,15 +205,20 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b pb-4">
                     <div>
                         <h2 class="text-base font-bold text-slate-900">Lista de Productos para Impresión Múltiple</h2>
-                        <p class="text-xs text-slate-500">Agrega varios artículos para imprimirlos todos seguidos en tu rollo de etiquetas.</p>
+                        <p class="text-xs text-slate-500">Carga artículos manualmente o impórtalos directamente desde tu Google Drive.</p>
                     </div>
-                    <div class="flex items-center space-x-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <!-- Botón Integración Google Drive -->
+                        <button onclick="openDriveModal()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold px-3 py-2 rounded-lg text-xs flex items-center space-x-1.5 border border-emerald-200 shadow-sm">
+                            <i class="fa-brands fa-google-drive text-emerald-600"></i>
+                            <span>Importar de Google Sheets</span>
+                        </button>
                         <button onclick="addBatchRow()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold px-3 py-2 rounded-lg text-xs flex items-center space-x-1 border border-indigo-200">
                             <i class="fa-solid fa-plus"></i>
                             <span>Agregar Fila</span>
                         </button>
                         <button onclick="clearBatch()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold px-3 py-2 rounded-lg text-xs">
-                            Limpiar Todo
+                            Limpiar
                         </button>
                     </div>
                 </div>
@@ -287,9 +235,7 @@
                                 <th class="p-3 text-center w-16">Acción</th>
                             </tr>
                         </thead>
-                        <tbody id="batch-table-body" class="divide-y divide-slate-200">
-                            <!-- Filas generadas dinámicamente -->
-                        </tbody>
+                        <tbody id="batch-table-body" class="divide-y divide-slate-200"></tbody>
                     </table>
                 </div>
 
@@ -355,7 +301,7 @@
                     </div>
                 </div>
 
-                <!-- Sección de Estado de la PWA / Almacenamiento -->
+                <!-- Sección de Estado de la PWA -->
                 <div class="pt-4 border-t border-slate-200">
                     <h3 class="text-xs font-bold text-slate-700 mb-2 flex items-center space-x-1">
                         <i class="fa-solid fa-mobile-screen text-indigo-600"></i>
@@ -372,21 +318,32 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start space-x-3 text-xs text-amber-800">
-                    <i class="fa-solid fa-lightbulb text-amber-600 text-base mt-0.5"></i>
-                    <div>
-                        <strong>Tip para impresoras Bluetooth y térmicas:</strong> En la ventana emergente de impresión de tu navegador o teléfono, asegúrate de ajustar las <em>márgenes en "Ninguno"</em> y seleccionar el tamaño de papel correspondiente a tu rollo.
-                    </div>
-                </div>
             </div>
         </div>
 
     </main>
 
-    <!-- AREA OCULTA DESTINADA A LA IMPRESIÓN DEL SISTEMA -->
-    <div id="print-area"></div>
+    <!-- Modal Explorador de Google Drive -->
+    <div id="drive-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-xl">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-slate-900 text-base flex items-center space-x-2">
+                    <i class="fa-brands fa-google-drive text-emerald-600"></i>
+                    <span>Tus Hojas de Google Drive</span>
+                </h3>
+                <button onclick="closeDriveModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <p class="text-xs text-slate-500">Selecciona una hoja de cálculo con tus productos (detecta automáticamente columnas de Nombre, Código/SKU, Precio y Cantidad):</p>
+            <div id="drive-files-list" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+            <div class="pt-3 border-t flex justify-end">
+                <button onclick="closeDriveModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-lg">Cerrar</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- Modal de Ayuda -->
     <div id="help-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-xl">
             <div class="flex justify-between items-center border-b pb-3">
@@ -404,19 +361,18 @@
                         <i class="fa-solid fa-download text-indigo-600"></i>
                         <span>Instalación como App (PWA):</span>
                     </p>
-                    <p>Puedes instalar esta aplicación en tu teléfono (Android / iOS) o PC (Windows / Mac). Funciona a pantalla completa, sin barra de direcciones y 100% offline sin conexión a internet.</p>
+                    <p>Puedes instalar esta aplicación en tu teléfono (Android / iOS) o PC (Windows / Mac). Funciona a pantalla completa, sin barra de direcciones y 100% offline.</p>
                 </div>
 
-                <p><strong>Método 1: Impresión del Sistema (Recomendado)</strong></p>
+                <p><strong>Impresoras Térmicas y Bluetooth:</strong></p>
                 <ol class="list-decimal pl-4 space-y-1">
-                    <li>Empareja tu impresora Bluetooth o térmica en los ajustes de tu celular o computadora.</li>
-                    <li>Presiona el botón <strong>"Imprimir Etiquetas"</strong> en la app.</li>
-                    <li>Selecciona tu impresora térmica en el diálogo de impresión.</li>
-                    <li>Configura el tamaño de papel igual al de tu etiqueta (ej. 50x30 mm) y las márgenes en <em>"Ninguna"</em>.</li>
+                    <li>Empareja tu impresora Bluetooth en los ajustes de tu teléfono o PC.</li>
+                    <li>Usa el botón <strong>"Conectar BT"</strong> para enlace directo o <strong>"Imprimir Etiquetas"</strong> mediante el diálogo del sistema.</li>
+                    <li>Asegúrate de configurar el tamaño de papel de tu rollo y márgenes en cero.</li>
                 </ol>
 
-                <p class="pt-2"><strong>Método 2: Web Bluetooth Directo (Android/Chrome)</strong></p>
-                <p>Usa el botón <em>"Conectar BT"</em> en la barra superior. Si tu impresora soporta Web Bluetooth SPP, se mantendrá enlazada directamente con la app.</p>
+                <p class="pt-2"><strong>Google Drive / Sheets:</strong></p>
+                <p>Presiona el botón de Google en la barra superior para iniciar sesión. Luego, en la pestaña de lotes, podrás importar directamente el listado de productos desde tus hojas de cálculo en la nube.</p>
             </div>
             <div class="pt-3 border-t flex justify-end">
                 <button onclick="closeHelpModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">Entendido</button>
@@ -424,531 +380,13 @@
         </div>
     </div>
 
+    <!-- Área de Impresión del Sistema -->
+    <div id="print-area"></div>
+
     <!-- Contenedor de Alertas Toast -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
-    <script>
-        // Configuración Global de la Etiqueta
-        let labelConfig = {
-            widthMm: 50,
-            heightMm: 30,
-            paddingMm: 2,
-            fontSizePt: 10
-        };
-
-        // Estado del Lote
-        let batchItems = [
-            { id: 1, title: 'Remera Algodón M', code: '779123456789', price: '4500', qty: 2 },
-            { id: 2, title: 'Pantalón Jean T40', code: '779987654321', price: '12000', qty: 1 }
-        ];
-
-        // Dispositivo Bluetooth conectado
-        let bluetoothDevice = null;
-        let bluetoothCharacteristic = null;
-
-        // PWA Install Prompt Event Holder
-        let deferredInstallPrompt = null;
-
-        // Al cargar la página
-        window.addEventListener('load', function() {
-            loadSavedSettings();
-            
-            // Atender hash en la URL (ej: #batch o #settings)
-            const initialTab = window.location.hash ? window.location.hash.replace('#', '') : 'single';
-            if (['single', 'batch', 'settings'].includes(initialTab)) {
-                switchTab(initialTab);
-            } else {
-                updatePreview();
-            }
-            
-            renderBatchTable();
-            checkDisplayMode();
-            registerServiceWorker();
-            initNetworkStatusListeners();
-        });
-
-        // Registro de Service Worker para PWA y soporte offline
-        function registerServiceWorker() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw.js')
-                    .then((registration) => {
-                        console.log('[PWA] ServiceWorker registrado con éxito con alcance:', registration.scope);
-                    })
-                    .catch((error) => {
-                        console.warn('[PWA] Falló el registro del ServiceWorker:', error);
-                    });
-            }
-        }
-
-        // Manejo del evento beforeinstallprompt para instalación PWA
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevenir la mini-barra por defecto en móviles
-            e.preventDefault();
-            deferredInstallPrompt = e;
-            
-            // Mostrar botón de instalación en la barra superior
-            const installBtn = document.getElementById('pwa-install-btn');
-            if (installBtn) {
-                installBtn.classList.remove('hidden');
-                installBtn.classList.add('flex');
-            }
-        });
-
-        window.addEventListener('appinstalled', () => {
-            console.log('[PWA] Aplicación instalada correctamente');
-            const installBtn = document.getElementById('pwa-install-btn');
-            if (installBtn) installBtn.classList.add('hidden');
-            showToast('¡PrintLabel Pro instalada como App!', 'success');
-            deferredInstallPrompt = null;
-        });
-
-        async function installPWA() {
-            if (!deferredInstallPrompt) {
-                showToast('Para instalar, usa la opción "Instalar app" o "Agregar a inicio" en el menú de tu navegador.', 'info');
-                return;
-            }
-            deferredInstallPrompt.prompt();
-            const { outcome } = await deferredInstallPrompt.userChoice;
-            if (outcome === 'accepted') {
-                showToast('Instalando PrintLabel Pro...', 'success');
-            }
-            deferredInstallPrompt = null;
-        }
-
-        // Detección de conectividad online/offline
-        function initNetworkStatusListeners() {
-            const badge = document.getElementById('offline-badge');
-            
-            function updateOnlineStatus() {
-                if (navigator.onLine) {
-                    badge.classList.add('hidden');
-                    badge.classList.remove('inline-flex');
-                } else {
-                    badge.classList.remove('hidden');
-                    badge.classList.add('inline-flex');
-                    showToast('Modo sin conexión activo. Puedes seguir creando e imprimiendo etiquetas.', 'warning');
-                }
-            }
-
-            window.addEventListener('online', () => {
-                showToast('Conexión restaurada', 'success');
-                updateOnlineStatus();
-            });
-
-            window.addEventListener('offline', () => {
-                updateOnlineStatus();
-            });
-
-            updateOnlineStatus();
-        }
-
-        function checkDisplayMode() {
-            const modeLabel = document.getElementById('display-mode-label');
-            if (!modeLabel) return;
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-            if (isStandalone) {
-                modeLabel.innerText = 'App Instalada (Standalone)';
-                modeLabel.className = 'font-semibold text-indigo-600';
-            } else {
-                modeLabel.innerText = 'Navegador Web';
-            }
-        }
-
-        // Cambiar entre pestañas
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(el => {
-                el.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
-                el.classList.add('border-transparent', 'text-slate-500');
-            });
-
-            const contentEl = document.getElementById(`tab-${tabName}`);
-            const btnEl = document.getElementById(`tab-btn-${tabName}`);
-
-            if (contentEl && btnEl) {
-                contentEl.classList.remove('hidden');
-                btnEl.classList.add('active', 'border-indigo-600', 'text-indigo-600');
-                btnEl.classList.remove('border-transparent', 'text-slate-500');
-                
-                // Actualizar hash en la URL sin refrescar
-                history.replaceState(null, null, `#${tabName}`);
-            }
-
-            if (tabName === 'single') updatePreview();
-        }
-
-        // Ajustar Cantidad en etiqueta única
-        function adjustQty(val) {
-            const input = document.getElementById('inp-quantity');
-            let current = parseInt(input.value) || 1;
-            current = Math.max(1, current + val);
-            input.value = current;
-        }
-
-        function updatePreview() {
-            const container = document.getElementById('label-container');
-            const dimBadge = document.getElementById('preview-dim-badge');
-            
-            dimBadge.innerText = `${labelConfig.widthMm}x${labelConfig.heightMm} mm`;
-
-            // Proporción aproximada para pantalla (1 mm ~ 3.78 px)
-            const pxWidth = Math.round(labelConfig.widthMm * 3.78);
-            const pxHeight = Math.round(labelConfig.heightMm * 3.78);
-
-            container.style.width = `${pxWidth}px`;
-            container.style.height = `${pxHeight}px`;
-            container.style.padding = `${labelConfig.paddingMm * 2}px`;
-
-            // Obtener valores de los inputs
-            const title = document.getElementById('inp-title').value;
-            const code = document.getElementById('inp-code').value || '12345678';
-            const symbology = document.getElementById('inp-symbology').value;
-            const price = document.getElementById('inp-price').value;
-            const currency = document.getElementById('inp-currency').value;
-            const extra = document.getElementById('inp-extra').value;
-
-            const showTitle = document.getElementById('chk-show-title').checked;
-            const showPrice = document.getElementById('chk-show-price').checked;
-            const showExtra = document.getElementById('chk-show-extra').checked;
-            const boldPrice = document.getElementById('chk-bold-price').checked;
-
-            // Construir HTML de la etiqueta
-            container.innerHTML = `
-                ${showTitle && title ? `<div class="font-bold text-slate-800 leading-tight uppercase tracking-tight truncate w-full" style="font-size: ${labelConfig.fontSizePt * 0.9}pt">${title}</div>` : ''}
-                
-                <div class="flex-1 flex items-center justify-center w-full my-1 overflow-hidden">
-                    ${symbology === 'QR' ? '<canvas id="barcode-canvas"></canvas>' : '<svg id="barcode-svg" class="max-w-full max-h-full"></svg>'}
-                </div>
-
-                <div class="w-full flex items-center justify-between text-slate-800 leading-none">
-                    ${showExtra && extra ? `<span class="truncate text-slate-500 font-medium" style="font-size: ${labelConfig.fontSizePt * 0.75}pt">${extra}</span>` : '<span></span>'}
-                    ${showPrice && price ? `<span class="${boldPrice ? 'font-black' : 'font-semibold'}" style="font-size: ${labelConfig.fontSizePt * 1.1}pt">${currency} ${price}</span>` : ''}
-                </div>
-            `;
-
-            // Renderizar Código de Barras o QR
-            try {
-                if (symbology === 'QR') {
-                    QRCode.toCanvas(document.getElementById('barcode-canvas'), code, {
-                        width: Math.min(pxWidth * 0.6, pxHeight * 0.6),
-                        margin: 0
-                    });
-                } else {
-                    JsBarcode("#barcode-svg", code, {
-                        format: symbology,
-                        width: labelConfig.widthMm < 40 ? 1.2 : 1.8,
-                        height: Math.max(20, pxHeight * 0.4),
-                        displayValue: true,
-                        fontSize: labelConfig.fontSizePt * 0.8,
-                        margin: 0
-                    });
-                }
-            } catch (e) {
-                console.warn('Error al generar código de barras:', e);
-            }
-        }
-
-        // Aplicar Presets de Tamaño
-        function applyPreset(w, h) {
-            document.getElementById('setting-width').value = w;
-            document.getElementById('setting-height').value = h;
-            saveSettings();
-            showToast(`Formato cambiado a ${w}x${h} mm`);
-        }
-
-        // Guardar Ajustes de Papel
-        function saveSettings() {
-            labelConfig.widthMm = parseFloat(document.getElementById('setting-width').value) || 50;
-            labelConfig.heightMm = parseFloat(document.getElementById('setting-height').value) || 30;
-            labelConfig.paddingMm = parseFloat(document.getElementById('setting-padding').value) || 2;
-            labelConfig.fontSizePt = parseFloat(document.getElementById('setting-fontsize').value) || 10;
-
-            localStorage.setItem('printlabel_config', JSON.stringify(labelConfig));
-            updatePreview();
-        }
-
-        function loadSavedSettings() {
-            const saved = localStorage.getItem('printlabel_config');
-            if (saved) {
-                try {
-                    labelConfig = JSON.parse(saved);
-                    document.getElementById('setting-width').value = labelConfig.widthMm;
-                    document.getElementById('setting-height').value = labelConfig.heightMm;
-                    document.getElementById('setting-padding').value = labelConfig.paddingMm;
-                    document.getElementById('setting-fontsize').value = labelConfig.fontSizePt;
-                } catch(e){}
-            }
-        }
-
-        function triggerPrintSystem() {
-            const printArea = document.getElementById('print-area');
-            printArea.innerHTML = '';
-
-            const qty = parseInt(document.getElementById('inp-quantity').value) || 1;
-            const title = document.getElementById('inp-title').value;
-            const code = document.getElementById('inp-code').value || '12345678';
-            const symbology = document.getElementById('inp-symbology').value;
-            const price = document.getElementById('inp-price').value;
-            const currency = document.getElementById('inp-currency').value;
-            const extra = document.getElementById('inp-extra').value;
-
-            const pxWidth = Math.round(labelConfig.widthMm * 3.78);
-            const pxHeight = Math.round(labelConfig.heightMm * 3.78);
-
-            // Generar las etiquetas en el área de impresión
-            for (let i = 0; i < qty; i++) {
-                const labelDiv = document.createElement('div');
-                labelDiv.className = 'thermal-paper page-break flex flex-col items-center justify-between text-center overflow-hidden box-border mx-auto my-0';
-                labelDiv.style.width = `${pxWidth}px`;
-                labelDiv.style.height = `${pxHeight}px`;
-                labelDiv.style.padding = `${labelConfig.paddingMm * 2}px`;
-
-                const barcodeId = `print-barcode-${i}`;
-                
-                labelDiv.innerHTML = `
-                    <div class="font-bold text-black uppercase leading-tight truncate w-full" style="font-size: ${labelConfig.fontSizePt * 0.9}pt">${title}</div>
-                    <div class="flex-1 flex items-center justify-center w-full my-1">
-                        ${symbology === 'QR' ? `<canvas id="${barcodeId}"></canvas>` : `<svg id="${barcodeId}" class="max-w-full max-h-full"></svg>`}
-                    </div>
-                    <div class="w-full flex items-center justify-between text-black leading-none">
-                        <span class="truncate font-medium" style="font-size: ${labelConfig.fontSizePt * 0.75}pt">${extra}</span>
-                        <span class="font-bold" style="font-size: ${labelConfig.fontSizePt * 1.1}pt">${currency} ${price}</span>
-                    </div>
-                `;
-
-                printArea.appendChild(labelDiv);
-
-                // Renderizado
-                setTimeout(() => {
-                    try {
-                        if (symbology === 'QR') {
-                            QRCode.toCanvas(document.getElementById(barcodeId), code, {
-                                width: Math.min(pxWidth * 0.6, pxHeight * 0.6),
-                                margin: 0
-                            });
-                        } else {
-                            JsBarcode(`#${barcodeId}`, code, {
-                                format: symbology,
-                                width: labelConfig.widthMm < 40 ? 1.2 : 1.8,
-                                height: Math.max(20, pxHeight * 0.4),
-                                displayValue: true,
-                                fontSize: labelConfig.fontSizePt * 0.8,
-                                margin: 0
-                            });
-                        }
-                    } catch(e){}
-                }, 50);
-            }
-
-            // Invocar diálogo de impresión tras pequeña pausa
-            setTimeout(() => {
-                window.print();
-            }, 300);
-        }
-
-        function renderBatchTable() {
-            const tbody = document.getElementById('batch-table-body');
-            tbody.innerHTML = '';
-
-            batchItems.forEach((item, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-3">
-                        <input type="text" value="${item.title}" onchange="updateBatchItem(${index}, 'title', this.value)" class="w-full border rounded p-1 text-xs">
-                    </td>
-                    <td class="p-3">
-                        <input type="text" value="${item.code}" onchange="updateBatchItem(${index}, 'code', this.value)" class="w-full border rounded p-1 text-xs font-mono">
-                    </td>
-                    <td class="p-3">
-                        <input type="text" value="${item.price}" onchange="updateBatchItem(${index}, 'price', this.value)" class="w-full border rounded p-1 text-xs">
-                    </td>
-                    <td class="p-3">
-                        <input type="number" min="1" value="${item.qty}" onchange="updateBatchItem(${index}, 'qty', parseInt(this.value))" class="w-16 border rounded p-1 text-xs text-center font-bold">
-                    </td>
-                    <td class="p-3 text-center">
-                        <button onclick="removeBatchRow(${index})" class="text-red-500 hover:text-red-700">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function addBatchRow() {
-            batchItems.push({
-                id: Date.now(),
-                title: 'Nuevo Producto',
-                code: '100' + (batchItems.length + 1),
-                price: '1000',
-                qty: 1
-            });
-            renderBatchTable();
-        }
-
-        function removeBatchRow(index) {
-            batchItems.splice(index, 1);
-            renderBatchTable();
-        }
-
-        function updateBatchItem(index, field, value) {
-            batchItems[index][field] = value;
-        }
-
-        function clearBatch() {
-            batchItems = [];
-            renderBatchTable();
-        }
-
-        function printBatch() {
-            if (batchItems.length === 0) {
-                showToast('Agrega al menos un producto a la lista', 'warning');
-                return;
-            }
-
-            const printArea = document.getElementById('print-area');
-            printArea.innerHTML = '';
-
-            const pxWidth = Math.round(labelConfig.widthMm * 3.78);
-            const pxHeight = Math.round(labelConfig.heightMm * 3.78);
-
-            let counter = 0;
-            batchItems.forEach(item => {
-                for (let i = 0; i < item.qty; i++) {
-                    const labelDiv = document.createElement('div');
-                    labelDiv.className = 'thermal-paper page-break flex flex-col items-center justify-between text-center overflow-hidden box-border mx-auto my-0';
-                    labelDiv.style.width = `${pxWidth}px`;
-                    labelDiv.style.height = `${pxHeight}px`;
-                    labelDiv.style.padding = `${labelConfig.paddingMm * 2}px`;
-
-                    const barcodeId = `batch-barcode-${counter}`;
-                    
-                    labelDiv.innerHTML = `
-                        <div class="font-bold text-black uppercase leading-tight truncate w-full" style="font-size: ${labelConfig.fontSizePt * 0.9}pt">${item.title}</div>
-                        <div class="flex-1 flex items-center justify-center w-full my-1">
-                            <svg id="${barcodeId}" class="max-w-full max-h-full"></svg>
-                        </div>
-                        <div class="w-full flex items-center justify-between text-black leading-none">
-                            <span class="truncate font-medium text-slate-500" style="font-size: ${labelConfig.fontSizePt * 0.75}pt">SKU: ${item.code}</span>
-                            <span class="font-bold" style="font-size: ${labelConfig.fontSizePt * 1.1}pt">$ ${item.price}</span>
-                        </div>
-                    `;
-
-                    printArea.appendChild(labelDiv);
-
-                    const currentId = barcodeId;
-                    const currentCode = item.code;
-                    setTimeout(() => {
-                        try {
-                            JsBarcode(`#${currentId}`, currentCode, {
-                                format: "CODE128",
-                                width: labelConfig.widthMm < 40 ? 1.2 : 1.8,
-                                height: Math.max(20, pxHeight * 0.4),
-                                displayValue: true,
-                                fontSize: labelConfig.fontSizePt * 0.8,
-                                margin: 0
-                            });
-                        } catch(e){}
-                    }, 50);
-
-                    counter++;
-                }
-            });
-
-            setTimeout(() => {
-                window.print();
-            }, 400);
-        }
-
-        async function connectBluetoothPrinter() {
-            if (!navigator.bluetooth) {
-                showToast('Web Bluetooth no es soportado en este navegador. Usa Chrome o Edge.', 'error');
-                return;
-            }
-
-            try {
-                showToast('Buscando dispositivos Bluetooth...', 'info');
-                bluetoothDevice = await navigator.bluetooth.requestDevice({
-                    acceptAllDevices: true,
-                    optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb', '49535343-fe7d-4ae5-8fa9-9fafd205e455', '00001101-0000-1000-8000-00805f9b34fb']
-                });
-
-                document.getElementById('bt-status-text').innerText = `Conectado: ${bluetoothDevice.name || 'Impresora'}`;
-                showToast(`Conectado a ${bluetoothDevice.name || 'Impresora Bluetooth'}`, 'success');
-
-            } catch (error) {
-                console.error(error);
-                showToast('No se pudo conectar al dispositivo Bluetooth', 'error');
-            }
-        }
-
-        // Descargar Imagen PNG
-        function downloadLabelImage() {
-            const container = document.getElementById('label-container');
-            showToast('Generando imagen de etiqueta...', 'info');
-
-            const svg = container.querySelector('svg');
-            if (svg) {
-                const xml = new XMLSerializer().serializeToString(svg);
-                const svg64 = btoa(xml);
-                const image64 = 'data:image/svg+xml;base64,' + svg64;
-
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = container.clientWidth * 2;
-                    canvas.height = container.clientHeight * 2;
-                    const ctx = canvas.getContext('2d');
-                    ctx.fillStyle = "#FFFFFF";
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 20, 20, canvas.width - 40, canvas.height - 40);
-
-                    const link = document.createElement('a');
-                    link.download = `etiqueta-${Date.now()}.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                };
-                img.src = image64;
-            } else {
-                showToast('Usa impresión del sistema para este formato', 'info');
-            }
-        }
-
-        // Modales y Notificaciones Toast
-        function openHelpModal() {
-            document.getElementById('help-modal').classList.remove('hidden');
-        }
-
-        function closeHelpModal() {
-            document.getElementById('help-modal').classList.add('hidden');
-        }
-
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-
-            let bgColor = 'bg-slate-800 text-white';
-            if (type === 'success') bgColor = 'bg-emerald-600 text-white';
-            if (type === 'error') bgColor = 'bg-rose-600 text-white';
-            if (type === 'warning') bgColor = 'bg-amber-500 text-white';
-
-            toast.className = `px-4 py-3 rounded-xl shadow-lg font-medium text-xs flex items-center space-x-2 transition-all transform translate-y-2 opacity-0 pointer-events-auto ${bgColor}`;
-            toast.innerHTML = `
-                <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-info'}"></i>
-                <span>${message}</span>
-            `;
-
-            container.appendChild(toast);
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-2', 'opacity-0');
-            }, 10);
-
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => toast.remove(), 300);
-            }, 3500);
-        }
-    </script>
+    <!-- Script Principal de Vite -->
+    <script type="module" src="/src/main.js"></script>
 </body>
 </html>

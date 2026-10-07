@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Libre+Barcode+128&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+.barcode-font {
+    font-family: 'Libre Barcode 128', cursive;
+}
+
+/* Reglas especiales para la impresión exacta de etiquetas */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #print-area, #print-area * {
+        visibility: visible;
+    }
+    #print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background: white;
+    }
+    .no-print {
+        display: none !important;
+    }
+    .page-break {
+        page-break-after: always;
+        break-after: page;
+    }
+    @page {
+        margin: 0;
+        size: auto;
+    }
+}
+
+/* Efecto de sombra para el rollo/etiqueta */
+.label-preview-shadow {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+}
+
+/* Fondo simulado de papel térmico */
+.thermal-paper {
+    background-color: #ffffff;
+    border: 1px dashed #cbd5e1;
+}
