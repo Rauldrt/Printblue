@@ -1,0 +1,16 @@
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python / Scripts temporales
+__pycache__/
+*.py[cod]
+generate_icons.py
+
+# Vercel
+.vercel
+
+# Node / Logs
+node_modules/
+*.log

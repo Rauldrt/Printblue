@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#312e81"/>
+    </linearGradient>
+    <linearGradient id="laserGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ec4899" stop-opacity="0.2"/>
+      <stop offset="50%" stop-color="#f43f5e" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#ec4899" stop-opacity="0.2"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#0f172a" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background rounded rectangle -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+
+  <!-- Label container card -->
+  <g filter="url(#shadow)">
+    <rect x="76" y="96" width="360" height="320" rx="28" fill="#ffffff"/>
+  </g>
+
+  <!-- Label top bar (header area) -->
+  <rect x="108" y="132" width="160" height="18" rx="6" fill="#0f172a"/>
+  <rect x="108" y="158" width="90" height="10" rx="5" fill="#94a3b8"/>
+  <rect x="330" y="132" width="74" height="28" rx="8" fill="#e0e7ff"/>
+  <text x="367" y="152" fill="#4338ca" font-family="system-ui, sans-serif" font-weight="bold" font-size="16" text-anchor="middle">PRO</text>
+
+  <!-- Barcode Lines -->
+  <g fill="#0f172a">
+    <!-- Barcode columns -->
+    <rect x="108" y="190" width="8" height="120" rx="3"/>
+    <rect x="124" y="190" width="14" height="120" rx="3"/>
+    <rect x="146" y="190" width="6" height="120" rx="3"/>
+    <rect x="160" y="190" width="16" height="120" rx="3"/>
+    <rect x="184" y="190" width="6" height="120" rx="3"/>
+    <rect x="198" y="190" width="10" height="120" rx="3"/>
+    <rect x="216" y="190" width="18" height="120" rx="3"/>
+    <rect x="242" y="190" width="8" height="120" rx="3"/>
+    <rect x="258" y="190" width="14" height="120" rx="3"/>
+    <rect x="280" y="190" width="6" height="120" rx="3"/>
+    <rect x="294" y="190" width="12" height="120" rx="3"/>
+    <rect x="314" y="190" width="18" height="120" rx="3"/>
+    <rect x="340" y="190" width="8" height="120" rx="3"/>
+    <rect x="356" y="190" width="14" height="120" rx="3"/>
+    <rect x="378" y="190" width="6" height="120" rx="3"/>
+    <rect x="392" y="190" width="12" height="120" rx="3"/>
+  </g>
+
+  <!-- Red Laser Scanner Beam -->
+  <line x1="90" y1="250" x2="422" y2="250" stroke="url(#laserGrad)" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Barcode Human Readable Numbers -->
+  <text x="256" y="335" fill="#334155" font-family="monospace" font-weight="bold" font-size="16" letter-spacing="4" text-anchor="middle">7 791234 567890</text>
+
+  <!-- Bottom info bar -->
+  <rect x="108" y="362" width="140" height="12" rx="6" fill="#cbd5e1"/>
+  <rect x="320" y="354" width="84" height="24" rx="8" fill="#10b981"/>
+  <text x="362" y="371" fill="#ffffff" font-family="system-ui, sans-serif" font-weight="bold" font-size="14" text-anchor="middle">$ 4,500</text>
+</svg>
