@@ -206,6 +206,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Listeners para sliders de dimensiones de código
+    ['setting-barcode-height', 'setting-barcode-width'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', () => saveSettings(updatePreview));
+        }
+    });
+
     // Detectar si está en modo standalone
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
     const modeLabel = document.getElementById('display-mode-label');

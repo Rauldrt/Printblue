@@ -1,5 +1,6 @@
 import JsBarcode from 'jsbarcode';
 import { labelConfig } from './paperSettings.js';
+import { applyDynamicPageStyle } from './singleLabel.js';
 import { showToast } from './toast.js';
 
 export let batchItems = [
@@ -41,7 +42,6 @@ export function renderBatchTable() {
         tbody.appendChild(tr);
     });
 
-    // Delegación de eventos para inputs y botones
     tbody.querySelectorAll('.batch-inp').forEach(input => {
         input.addEventListener('change', (e) => {
             const idx = parseInt(e.target.dataset.index);
@@ -91,28 +91,30 @@ export function printBatch() {
     if (!printArea) return;
     printArea.innerHTML = '';
 
-    const pxWidth = Math.round(labelConfig.widthMm * 3.78);
+    applyDynamicPageStyle();
+
     const pxHeight = Math.round(labelConfig.heightMm * 3.78);
+    const barcodePrintHeight = Math.max(30, Math.round(pxHeight * (labelConfig.barcodeHeight / 100)));
 
     let counter = 0;
     batchItems.forEach(item => {
         for (let i = 0; i < item.qty; i++) {
             const labelDiv = document.createElement('div');
-            labelDiv.className = 'thermal-paper page-break flex flex-col items-center justify-between text-center overflow-hidden box-border mx-auto my-0';
-            labelDiv.style.width = `${pxWidth}px`;
-            labelDiv.style.height = `${pxHeight}px`;
-            labelDiv.style.padding = `${labelConfig.paddingMm * 2}px`;
+            labelDiv.className = 'print-label-item thermal-paper page-break flex flex-col items-center justify-between text-center overflow-hidden box-border mx-auto my-0';
+            labelDiv.style.width = `${labelConfig.widthMm}mm`;
+            labelDiv.style.height = `${labelConfig.heightMm}mm`;
+            labelDiv.style.padding = `${labelConfig.paddingMm}mm`;
 
             const barcodeId = `batch-barcode-${counter}`;
             
             labelDiv.innerHTML = `
-                <div class="font-bold text-black uppercase leading-tight truncate w-full" style="font-size: ${labelConfig.fontSizePt * 0.9}pt">${item.title}</div>
-                <div class="flex-1 flex items-center justify-center w-full my-1">
+                <div class="font-bold text-black uppercase leading-tight truncate w-full" style="font-size: ${labelConfig.fontSizePt * 0.95}pt">${item.title}</div>
+                <div class="flex-1 flex items-center justify-center w-full my-1 overflow-hidden">
                     <svg id="${barcodeId}" class="max-w-full max-h-full"></svg>
                 </div>
                 <div class="w-full flex items-center justify-between text-black leading-none">
-                    <span class="truncate font-medium text-slate-500" style="font-size: ${labelConfig.fontSizePt * 0.75}pt">SKU: ${item.code}</span>
-                    <span class="font-bold" style="font-size: ${labelConfig.fontSizePt * 1.1}pt">$ ${item.price}</span>
+                    <span class="truncate font-medium text-black" style="font-size: ${labelConfig.fontSizePt * 0.8}pt">SKU: ${item.code}</span>
+                    <span class="font-bold" style="font-size: ${labelConfig.fontSizePt * 1.15}pt">$ ${item.price}</span>
                 </div>
             `;
 
@@ -124,10 +126,10 @@ export function printBatch() {
                 try {
                     JsBarcode(`#${currentId}`, currentCode, {
                         format: "CODE128",
-                        width: labelConfig.widthMm < 40 ? 1.2 : 1.8,
-                        height: Math.max(20, pxHeight * 0.4),
+                        width: labelConfig.barcodeWidth,
+                        height: barcodePrintHeight,
                         displayValue: true,
-                        fontSize: labelConfig.fontSizePt * 0.8,
+                        fontSize: labelConfig.fontSizePt * 0.85,
                         margin: 0
                     });
                 } catch(e){}

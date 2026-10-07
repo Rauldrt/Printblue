@@ -11,6 +11,29 @@ export function adjustQty(val) {
     input.value = current;
 }
 
+export function applyDynamicPageStyle() {
+    let styleEl = document.getElementById('dynamic-print-page-style');
+    if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = 'dynamic-print-page-style';
+        document.head.appendChild(styleEl);
+    }
+    styleEl.innerHTML = `
+        @media print {
+            @page {
+                size: ${labelConfig.widthMm}mm ${labelConfig.heightMm}mm;
+                margin: 0mm !important;
+            }
+            #print-area .print-label-item {
+                width: ${labelConfig.widthMm}mm !important;
+                height: ${labelConfig.heightMm}mm !important;
+                max-height: ${labelConfig.heightMm}mm !important;
+                padding: ${labelConfig.paddingMm}mm !important;
+            }
+        }
+    `;
+}
+
 export function updatePreview() {
     const container = document.getElementById('label-container');
     const dimBadge = document.getElementById('preview-dim-badge');
@@ -58,18 +81,20 @@ export function updatePreview() {
         if (symbology === 'QR') {
             const canvasEl = document.getElementById('barcode-canvas');
             if (canvasEl) {
+                const qrSize = Math.min(pxWidth * 0.7, pxHeight * (labelConfig.barcodeHeight / 100));
                 QRCode.toCanvas(canvasEl, code, {
-                    width: Math.min(pxWidth * 0.6, pxHeight * 0.6),
+                    width: qrSize,
                     margin: 0
                 });
             }
         } else {
+            const barcodeCalculatedHeight = Math.max(25, Math.round(pxHeight * (labelConfig.barcodeHeight / 100)));
             JsBarcode("#barcode-svg", code, {
                 format: symbology,
-                width: labelConfig.widthMm < 40 ? 1.2 : 1.8,
-                height: Math.max(20, pxHeight * 0.4),
+                width: labelConfig.barcodeWidth,
+                height: barcodeCalculatedHeight,
                 displayValue: true,
-                fontSize: labelConfig.fontSizePt * 0.8,
+                fontSize: labelConfig.fontSizePt * 0.85,
                 margin: 0
             });
         }
@@ -83,6 +108,8 @@ export function triggerPrintSystem() {
     if (!printArea) return;
     printArea.innerHTML = '';
 
+    applyDynamicPageStyle();
+
     const qty = parseInt(document.getElementById('inp-quantity')?.value) || 1;
     const title = document.getElementById('inp-title')?.value || '';
     const code = document.getElementById('inp-code')?.value || '12345678';
@@ -91,26 +118,32 @@ export function triggerPrintSystem() {
     const currency = document.getElementById('inp-currency')?.value || '$';
     const extra = document.getElementById('inp-extra')?.value || '';
 
+    const showTitle = document.getElementById('chk-show-title')?.checked ?? true;
+    const showPrice = document.getElementById('chk-show-price')?.checked ?? true;
+    const showExtra = document.getElementById('chk-show-extra')?.checked ?? true;
+    const boldPrice = document.getElementById('chk-bold-price')?.checked ?? true;
+
     const pxWidth = Math.round(labelConfig.widthMm * 3.78);
     const pxHeight = Math.round(labelConfig.heightMm * 3.78);
+    const barcodePrintHeight = Math.max(30, Math.round(pxHeight * (labelConfig.barcodeHeight / 100)));
 
     for (let i = 0; i < qty; i++) {
         const labelDiv = document.createElement('div');
-        labelDiv.className = 'thermal-paper page-break flex flex-col items-center justify-between text-center overflow-hidden box-border mx-auto my-0';
-        labelDiv.style.width = `${pxWidth}px`;
-        labelDiv.style.height = `${pxHeight}px`;
-        labelDiv.style.padding = `${labelConfig.paddingMm * 2}px`;
+        labelDiv.className = 'print-label-item thermal-paper page-break flex flex-col items-center justify-between text-center overflow-hidden box-border mx-auto my-0';
+        labelDiv.style.width = `${labelConfig.widthMm}mm`;
+        labelDiv.style.height = `${labelConfig.heightMm}mm`;
+        labelDiv.style.padding = `${labelConfig.paddingMm}mm`;
 
         const barcodeId = `print-barcode-${i}`;
         
         labelDiv.innerHTML = `
-            <div class="font-bold text-black uppercase leading-tight truncate w-full" style="font-size: ${labelConfig.fontSizePt * 0.9}pt">${title}</div>
-            <div class="flex-1 flex items-center justify-center w-full my-1">
+            ${showTitle && title ? `<div class="font-bold text-black uppercase leading-tight truncate w-full" style="font-size: ${labelConfig.fontSizePt * 0.95}pt">${title}</div>` : ''}
+            <div class="flex-1 flex items-center justify-center w-full my-1 overflow-hidden">
                 ${symbology === 'QR' ? `<canvas id="${barcodeId}"></canvas>` : `<svg id="${barcodeId}" class="max-w-full max-h-full"></svg>`}
             </div>
             <div class="w-full flex items-center justify-between text-black leading-none">
-                <span class="truncate font-medium" style="font-size: ${labelConfig.fontSizePt * 0.75}pt">${extra}</span>
-                <span class="font-bold" style="font-size: ${labelConfig.fontSizePt * 1.1}pt">${currency} ${price}</span>
+                ${showExtra && extra ? `<span class="truncate font-medium text-black" style="font-size: ${labelConfig.fontSizePt * 0.8}pt">${extra}</span>` : '<span></span>'}
+                ${showPrice && price ? `<span class="${boldPrice ? 'font-black' : 'font-semibold'}" style="font-size: ${labelConfig.fontSizePt * 1.15}pt">${currency} ${price}</span>` : ''}
             </div>
         `;
 
@@ -119,17 +152,18 @@ export function triggerPrintSystem() {
         setTimeout(() => {
             try {
                 if (symbology === 'QR') {
+                    const qrSize = Math.min(pxWidth * 0.7, pxHeight * (labelConfig.barcodeHeight / 100));
                     QRCode.toCanvas(document.getElementById(barcodeId), code, {
-                        width: Math.min(pxWidth * 0.6, pxHeight * 0.6),
+                        width: qrSize,
                         margin: 0
                     });
                 } else {
                     JsBarcode(`#${barcodeId}`, code, {
                         format: symbology,
-                        width: labelConfig.widthMm < 40 ? 1.2 : 1.8,
-                        height: Math.max(20, pxHeight * 0.4),
+                        width: labelConfig.barcodeWidth,
+                        height: barcodePrintHeight,
                         displayValue: true,
-                        fontSize: labelConfig.fontSizePt * 0.8,
+                        fontSize: labelConfig.fontSizePt * 0.85,
                         margin: 0
                     });
                 }
