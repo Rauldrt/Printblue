@@ -168,29 +168,42 @@ export function updateBluetoothUI() {
     const isSerial = !!(serialPort && serialPort.writable);
     const statusText = document.getElementById('bt-status-text');
     const connectBtn = document.getElementById('bt-connect-btn');
+    const serialBtn = document.getElementById('pc-serial-connect-btn');
     const directBtnSingle = document.getElementById('btn-print-direct-bt');
     const directBtnBatch = document.getElementById('btn-print-batch-bt');
 
     let devName = 'Impresora';
     if (isSerial) {
-        devName = 'Puerto COM / USB';
+        devName = 'GL-33 (Bluetooth PC)';
     } else if (bluetoothDevice?.name) {
         devName = bluetoothDevice.name;
     }
 
     if (statusText) {
-        if (isConn) {
-            statusText.innerText = isSerial ? 'COM: Conectado' : `BT: ${devName.slice(0, 10)}`;
+        if (isConn && !isSerial) {
+            statusText.innerText = `BT: ${devName.slice(0, 10)}`;
         } else {
-            statusText.innerText = 'Conectar BT / PC';
+            statusText.innerText = 'BT Móvil';
         }
     }
 
     if (connectBtn) {
-        if (isConn) {
+        if (isConn && !isSerial) {
             connectBtn.className = 'flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500 text-xs sm:text-sm px-3 py-2 rounded-lg transition shadow-sm font-semibold';
         } else {
             connectBtn.className = 'flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm px-3 py-2 rounded-lg transition shadow-sm';
+        }
+    }
+
+    if (serialBtn) {
+        if (isSerial) {
+            serialBtn.className = 'flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500 text-xs px-3 py-2 rounded-lg transition shadow-sm font-semibold';
+            const span = serialBtn.querySelector('span');
+            if (span) span.innerText = 'BT PC: Conectado';
+        } else {
+            serialBtn.className = 'flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-lg transition shadow-sm';
+            const span = serialBtn.querySelector('span');
+            if (span) span.innerText = 'BT en PC (COM)';
         }
     }
 
@@ -201,7 +214,7 @@ export function updateBluetoothUI() {
         const textSpan = directBtnSingle.querySelector('span');
         if (textSpan) {
             textSpan.innerText = isConn 
-                ? `Imprimir Directo (${devName})` 
+                ? `Imprimir Directo por Bluetooth (${devName})` 
                 : 'Imprimir Directo por Bluetooth (Sin ventanas)';
         }
     }
@@ -212,7 +225,7 @@ export function updateBluetoothUI() {
         const textSpan = directBtnBatch.querySelector('span');
         if (textSpan) {
             textSpan.innerText = isConn 
-                ? `Imprimir por Bluetooth / Directo (${devName})` 
+                ? `Imprimir por Bluetooth Directo (${devName})` 
                 : 'Imprimir Todo por Bluetooth';
         }
     }
