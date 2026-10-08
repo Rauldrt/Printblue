@@ -173,20 +173,45 @@ export async function renderLabelToMonochromeCanvas(item, config) {
 
     const padding = Math.round(config.paddingMm * 8);
     const contentWidth = dotsWidth - (padding * 2);
+
+    const spacingTitleDots = Math.round((config.spacingTitle ?? 2.0) * 8);
+    const spacingFooterDots = Math.round((config.spacingFooter ?? 2.0) * 8);
+    const vAlign = config.verticalAlign || 'center';
+
+    // Estimación de alturas para distribución vertical
+    const titleFontSize = Math.round(config.fontSizePt * 2.8);
+    const titleHeight = item.title ? (titleFontSize + 4) : 0;
+    const titleSpacing = item.title ? spacingTitleDots : 0;
+
+    const barcodeAreaHeight = Math.round(dotsHeight * (config.barcodeHeight / 100));
+    const barcodeSpacing = (item.extra || item.price || item.code) ? spacingFooterDots : 0;
+
+    const footerFontSize = Math.round(config.fontSizePt * 2.6);
+    const hasFooter = !!(item.extra || item.price || item.code);
+    const footerHeight = hasFooter ? (footerFontSize + 4) : 0;
+
+    const totalContentHeight = titleHeight + titleSpacing + barcodeAreaHeight + barcodeSpacing + footerHeight;
+
     let currentY = padding;
+    if (vAlign === 'center') {
+        const availableSpace = dotsHeight - (padding * 2);
+        if (availableSpace > totalContentHeight) {
+            currentY = padding + Math.round((availableSpace - totalContentHeight) / 2);
+        }
+    } else if (vAlign === 'flex-start') {
+        currentY = padding;
+    }
 
     // 1. Título
     if (item.title) {
-        const fontSizePx = Math.round(config.fontSizePt * 2.8);
-        ctx.font = `bold ${fontSizePx}px sans-serif`;
+        ctx.font = `bold ${titleFontSize}px sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
         ctx.fillText(item.title.toUpperCase(), dotsWidth / 2, currentY, contentWidth);
-        currentY += fontSizePx + 10;
+        currentY += titleHeight + spacingTitleDots;
     }
 
     // 2. Código de barras o QR
-    const barcodeAreaHeight = Math.round(dotsHeight * (config.barcodeHeight / 100));
     const barcodeCanvas = document.createElement('canvas');
 
     if (item.symbology === 'QR') {
@@ -197,7 +222,7 @@ export async function renderLabelToMonochromeCanvas(item, config) {
         });
         const qrX = Math.round((dotsWidth - qrSize) / 2);
         ctx.drawImage(barcodeCanvas, qrX, currentY, qrSize, qrSize);
-        currentY += qrSize + 10;
+        currentY += qrSize + spacingFooterDots;
     } else {
         const tempSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         try {
@@ -222,16 +247,23 @@ export async function renderLabelToMonochromeCanvas(item, config) {
                 img.onerror = resolve;
                 img.src = 'data:image/svg+xml;base64,' + btoa(svgXml);
             });
-            currentY += barcodeAreaHeight + 10;
+            currentY += barcodeAreaHeight + spacingFooterDots;
         } catch(e) {
             console.error('Error dibujando código en canvas térmico:', e);
+            currentY += barcodeAreaHeight + spacingFooterDots;
         }
     }
 
     // 3. Footer: Extra a la izquierda y Precio a la derecha
-    const footerY = dotsHeight - padding - Math.round(config.fontSizePt * 3.2);
-    const footerFontSize = Math.round(config.fontSizePt * 2.6);
+    let footerY = currentY;
+    if (vAlign === 'space-between') {
+        footerY = dotsHeight - padding - footerFontSize;
+    }
+    // Asegurar que no rebase el margen del papel
+    footerY = Math.min(footerY, dotsHeight - padding - footerFontSize);
+
     ctx.font = `bold ${footerFontSize}px sans-serif`;
+    ctx.textBaseline = 'top';
 
     if (item.extra) {
         ctx.textAlign = 'left';
@@ -321,20 +353,25 @@ export function buildTSPLCommands(item, config, copies = 1) {
     tspl += `DIRECTION 1\r\n`;
     tspl += `CLS\r\n`;
 
-    let y = 20;
+    const spacingTitleDots = Math.round((config.spacingTitle ?? 2.0) * 8);
+    const spacingFooterDots = Math.round((config.spacingFooter ?? 2.0) * 8);
+
+    let y = Math.max(15, Math.round(config.paddingMm * 8));
     if (item.title) {
         tspl += `TEXT 20,${y},"3",0,1,1,"${item.title.slice(0, 30)}"\r\n`;
-        y += 45;
+        y += 40 + spacingTitleDots;
+    } else {
+        y += spacingTitleDots;
     }
 
     const barcodeHeightDots = Math.round(config.heightMm * 8 * (config.barcodeHeight / 100));
     if (item.code) {
         if (item.symbology === 'QR') {
             tspl += `QRCODE 40,${y},L,5,A,0,"${item.code}"\r\n`;
-            y += 110;
+            y += 110 + spacingFooterDots;
         } else {
             tspl += `BARCODE 20,${y},"128",${Math.min(90, barcodeHeightDots)},1,0,2,4,"${item.code}"\r\n`;
-            y += 105;
+            y += Math.min(90, barcodeHeightDots) + 30 + spacingFooterDots;
         }
     }
 

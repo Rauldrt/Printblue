@@ -245,22 +245,25 @@ export function printBatch(onlySelected = false) {
     const barcodePrintHeight = Math.max(30, Math.round(pxHeight * (labelConfig.barcodeHeight / 100)));
 
     let counter = 0;
+    const vAlign = labelConfig.verticalAlign || 'center';
+
     itemsToPrint.forEach(item => {
         for (let i = 0; i < item.qty; i++) {
             const labelDiv = document.createElement('div');
-            labelDiv.className = 'print-label-item thermal-paper page-break flex flex-col items-center justify-between text-center overflow-hidden box-border mx-auto my-0';
+            labelDiv.className = 'print-label-item thermal-paper page-break flex flex-col items-center text-center overflow-hidden box-border mx-auto my-0';
             labelDiv.style.width = `${labelConfig.widthMm}mm`;
             labelDiv.style.height = `${labelConfig.heightMm}mm`;
             labelDiv.style.padding = `${labelConfig.paddingMm}mm`;
+            labelDiv.style.justifyContent = vAlign;
 
             const barcodeId = `batch-barcode-${counter}`;
             
             labelDiv.innerHTML = `
-                <div class="font-bold text-black uppercase leading-tight truncate w-full" style="font-size: ${labelConfig.fontSizePt * 0.95}pt">${item.title}</div>
-                <div class="flex-1 flex items-center justify-center w-full my-1 overflow-hidden">
+                <div class="print-label-title font-bold text-black uppercase leading-tight truncate w-full" style="font-size: ${labelConfig.fontSizePt * 0.95}pt; margin-bottom: ${labelConfig.spacingTitle ?? 2.0}mm;">${item.title}</div>
+                <div class="print-label-barcode flex items-center justify-center w-full overflow-hidden" style="${vAlign === 'space-between' ? 'flex: 1;' : ''} margin-bottom: ${labelConfig.spacingFooter ?? 2.0}mm;">
                     <svg id="${barcodeId}" class="max-w-full max-h-full"></svg>
                 </div>
-                <div class="w-full flex items-center justify-between text-black leading-none">
+                <div class="print-label-footer w-full flex items-center justify-between text-black leading-none">
                     <span class="truncate font-medium text-black" style="font-size: ${labelConfig.fontSizePt * 0.8}pt">${item.extra ? item.extra : (item.code ? `SKU: ${item.code}` : '')}</span>
                     <span class="font-bold" style="font-size: ${labelConfig.fontSizePt * 1.15}pt">${item.price ? `$ ${item.price}` : ''}</span>
                 </div>

@@ -40,6 +40,7 @@ export function applyDynamicPageStyle() {
         styleEl.id = 'dynamic-print-page-style';
         document.head.appendChild(styleEl);
     }
+    const vAlign = labelConfig.verticalAlign || 'center';
     styleEl.innerHTML = `
         @media print {
             @page {
@@ -51,6 +52,18 @@ export function applyDynamicPageStyle() {
                 height: ${labelConfig.heightMm}mm !important;
                 max-height: ${labelConfig.heightMm}mm !important;
                 padding: ${labelConfig.paddingMm}mm !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: ${vAlign} !important;
+                box-sizing: border-box !important;
+            }
+            #print-area .print-label-title {
+                margin-bottom: ${labelConfig.spacingTitle ?? 2.0}mm !important;
+            }
+            #print-area .print-label-barcode {
+                margin-bottom: ${labelConfig.spacingFooter ?? 2.0}mm !important;
+                ${vAlign === 'space-between' ? 'flex: 1 !important;' : ''}
             }
         }
     `;
@@ -68,10 +81,15 @@ export function updatePreview() {
     // Proporción de pantalla (1 mm ~ 3.78 px)
     const pxWidth = Math.round(labelConfig.widthMm * 3.78);
     const pxHeight = Math.round(labelConfig.heightMm * 3.78);
+    const pxPadding = Math.round(labelConfig.paddingMm * 3.78);
+    const spacingTitlePx = Math.round((labelConfig.spacingTitle ?? 2.0) * 3.78);
+    const spacingFooterPx = Math.round((labelConfig.spacingFooter ?? 2.0) * 3.78);
+    const vAlign = labelConfig.verticalAlign || 'center';
 
     container.style.width = `${pxWidth}px`;
     container.style.height = `${pxHeight}px`;
-    container.style.padding = `${labelConfig.paddingMm * 2}px`;
+    container.style.padding = `${pxPadding}px`;
+    container.style.justifyContent = vAlign;
 
     const title = document.getElementById('inp-title')?.value || '';
     const code = document.getElementById('inp-code')?.value || '12345678';
@@ -86,9 +104,9 @@ export function updatePreview() {
     const boldPrice = document.getElementById('chk-bold-price')?.checked ?? true;
 
     container.innerHTML = `
-        ${showTitle && title ? `<div class="font-bold text-slate-800 leading-tight uppercase tracking-tight truncate w-full" style="font-size: ${labelConfig.fontSizePt * 0.9}pt">${title}</div>` : ''}
+        ${showTitle && title ? `<div class="font-bold text-slate-800 leading-tight uppercase tracking-tight truncate w-full text-center" style="font-size: ${labelConfig.fontSizePt * 0.9}pt; margin-bottom: ${spacingTitlePx}px;">${title}</div>` : ''}
         
-        <div class="flex-1 flex items-center justify-center w-full my-1 overflow-hidden">
+        <div class="flex items-center justify-center w-full overflow-hidden" style="${vAlign === 'space-between' ? 'flex: 1;' : ''} margin-bottom: ${spacingFooterPx}px;">
             ${symbology === 'QR' ? '<canvas id="barcode-canvas"></canvas>' : '<svg id="barcode-svg" class="max-w-full max-h-full"></svg>'}
         </div>
 
@@ -148,22 +166,24 @@ export function triggerPrintSystem() {
     const pxWidth = Math.round(labelConfig.widthMm * 3.78);
     const pxHeight = Math.round(labelConfig.heightMm * 3.78);
     const barcodePrintHeight = Math.max(30, Math.round(pxHeight * (labelConfig.barcodeHeight / 100)));
+    const vAlign = labelConfig.verticalAlign || 'center';
 
     for (let i = 0; i < qty; i++) {
         const labelDiv = document.createElement('div');
-        labelDiv.className = 'print-label-item thermal-paper page-break flex flex-col items-center justify-between text-center overflow-hidden box-border mx-auto my-0';
+        labelDiv.className = 'print-label-item thermal-paper page-break flex flex-col items-center text-center overflow-hidden box-border mx-auto my-0';
         labelDiv.style.width = `${labelConfig.widthMm}mm`;
         labelDiv.style.height = `${labelConfig.heightMm}mm`;
         labelDiv.style.padding = `${labelConfig.paddingMm}mm`;
+        labelDiv.style.justifyContent = vAlign;
 
         const barcodeId = `print-barcode-${i}`;
         
         labelDiv.innerHTML = `
-            ${showTitle && title ? `<div class="font-bold text-black uppercase leading-tight truncate w-full" style="font-size: ${labelConfig.fontSizePt * 0.95}pt">${title}</div>` : ''}
-            <div class="flex-1 flex items-center justify-center w-full my-1 overflow-hidden">
+            ${showTitle && title ? `<div class="print-label-title font-bold text-black uppercase leading-tight truncate w-full" style="font-size: ${labelConfig.fontSizePt * 0.95}pt; margin-bottom: ${labelConfig.spacingTitle ?? 2.0}mm;">${title}</div>` : ''}
+            <div class="print-label-barcode flex items-center justify-center w-full overflow-hidden" style="${vAlign === 'space-between' ? 'flex: 1;' : ''} margin-bottom: ${labelConfig.spacingFooter ?? 2.0}mm;">
                 ${symbology === 'QR' ? `<canvas id="${barcodeId}"></canvas>` : `<svg id="${barcodeId}" class="max-w-full max-h-full"></svg>`}
             </div>
-            <div class="w-full flex items-center justify-between text-black leading-none">
+            <div class="print-label-footer w-full flex items-center justify-between text-black leading-none">
                 ${showExtra && extra ? `<span class="truncate font-medium text-black" style="font-size: ${labelConfig.fontSizePt * 0.8}pt">${extra}</span>` : '<span></span>'}
                 ${showPrice && price ? `<span class="${boldPrice ? 'font-black' : 'font-semibold'}" style="font-size: ${labelConfig.fontSizePt * 1.15}pt">${currency} ${price}</span>` : ''}
             </div>

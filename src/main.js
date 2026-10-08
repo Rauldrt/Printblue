@@ -4,7 +4,9 @@ import {
     labelConfig, 
     loadSavedSettings, 
     saveSettings, 
-    applyPreset 
+    applyPreset,
+    syncSpacingInputs,
+    setVerticalAlign
 } from './modules/paperSettings.js';
 import { 
     updatePreview, 
@@ -52,6 +54,8 @@ window.adjustQty = adjustQty;
 window.updatePreview = updatePreview;
 window.applyPreset = (w, h) => applyPreset(w, h, updatePreview);
 window.saveSettings = () => saveSettings(updatePreview);
+window.syncSpacingInputs = (type, val) => syncSpacingInputs(type, val, updatePreview);
+window.setVerticalAlign = (align) => setVerticalAlign(align, updatePreview);
 window.triggerPrintSystem = triggerPrintSystem;
 window.downloadLabelImage = downloadLabelImage;
 window.printSingleDirectBT = printSingleDirectBT;
