@@ -17,7 +17,10 @@ import {
     renderBatchTable, 
     addBatchRow, 
     clearBatch, 
-    printBatch 
+    printBatch,
+    toggleSelectAll,
+    deleteSelectedItems,
+    setQtyForSelectedItems
 } from './modules/batchPrinting.js';
 import { 
     connectBluetoothPrinter, 
@@ -51,6 +54,9 @@ window.downloadLabelImage = downloadLabelImage;
 window.addBatchRow = addBatchRow;
 window.clearBatch = clearBatch;
 window.printBatch = printBatch;
+window.toggleSelectAll = toggleSelectAll;
+window.deleteSelectedItems = deleteSelectedItems;
+window.setQtyForSelectedItems = setQtyForSelectedItems;
 window.connectBluetoothPrinter = connectBluetoothPrinter;
 window.openHelpModal = () => document.getElementById('help-modal')?.classList.remove('hidden');
 window.closeHelpModal = () => document.getElementById('help-modal')?.classList.add('hidden');
