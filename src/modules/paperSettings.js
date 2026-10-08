@@ -1,4 +1,5 @@
 import { showToast } from './toast.js';
+import { triggerCloudSave } from '../services/cloudSync.js';
 
 export let labelConfig = {
     widthMm: 55,
@@ -73,6 +74,7 @@ export function saveSettings(onUpdateCallback) {
     if (bWidthVal) bWidthVal.innerText = `${labelConfig.barcodeWidth}x`;
 
     localStorage.setItem('printlabel_config', JSON.stringify(labelConfig));
+    triggerCloudSave();
     if (typeof onUpdateCallback === 'function') onUpdateCallback();
 }
 
@@ -97,6 +99,7 @@ export function syncSpacingInputs(type, val, onUpdateCallback) {
     }
 
     localStorage.setItem('printlabel_config', JSON.stringify(labelConfig));
+    triggerCloudSave();
     if (typeof onUpdateCallback === 'function') onUpdateCallback();
 }
 
@@ -104,6 +107,7 @@ export function setVerticalAlign(align, onUpdateCallback) {
     labelConfig.verticalAlign = align;
     updateVerticalAlignUI();
     localStorage.setItem('printlabel_config', JSON.stringify(labelConfig));
+    triggerCloudSave();
     if (typeof onUpdateCallback === 'function') onUpdateCallback();
 }
 

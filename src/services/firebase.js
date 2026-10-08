@@ -6,6 +6,8 @@ import {
     signOut, 
     onAuthStateChanged 
 } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { initCloudSync, setCloudSyncUser } from './cloudSync.js';
 import { showToast } from '../modules/toast.js';
 
 // Configuración leída desde variables de entorno Vite (.env)
@@ -20,6 +22,7 @@ const firebaseConfig = {
 
 let app = null;
 let auth = null;
+let db = null;
 let googleProvider = null;
 let currentUser = null;
 let googleAccessToken = null;
@@ -33,6 +36,9 @@ export function initFirebase() {
     try {
         app = initializeApp(firebaseConfig);
         auth = getAuth(app);
+        db = getFirestore(app);
+        initCloudSync(db);
+
         googleProvider = new GoogleAuthProvider();
         
         // Permisos para leer hojas de cálculo de Drive
@@ -42,6 +48,7 @@ export function initFirebase() {
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             updateAuthUI(user);
+            setCloudSyncUser(user);
         });
 
         return true;
@@ -101,10 +108,13 @@ function updateAuthUI(user) {
 
     if (user) {
         userContainer.innerHTML = `
-            <div class="flex items-center space-x-2">
-                <img src="${user.photoURL || ''}" class="w-7 h-7 rounded-full border border-indigo-400" alt="avatar">
-                <span class="text-xs font-medium text-slate-200 hidden sm:inline">${user.displayName}</span>
-                <button id="btn-logout" class="text-slate-400 hover:text-rose-400 text-xs ml-1" title="Cerrar sesión">
+            <div class="flex items-center space-x-1.5 sm:space-x-2 bg-slate-800/90 py-1 px-2 rounded-xl border border-slate-700/80 shadow-sm">
+                <img src="${user.photoURL || ''}" class="w-6 h-6 rounded-full border border-indigo-400 object-cover" alt="avatar" referrerpolicy="no-referrer">
+                <span class="text-xs font-semibold text-slate-200 hidden md:inline truncate max-w-[90px]">${user.displayName ? user.displayName.split(' ')[0] : 'Usuario'}</span>
+                <span id="cloud-sync-indicator" class="flex items-center" title="Sincronizado con Google Cloud">
+                    <i class="fa-solid fa-cloud-check text-emerald-400 text-xs"></i>
+                </span>
+                <button id="btn-logout" class="text-slate-400 hover:text-rose-400 text-xs p-1 ml-0.5 transition" title="Cerrar sesión">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 </button>
             </div>
@@ -112,9 +122,9 @@ function updateAuthUI(user) {
         document.getElementById('btn-logout')?.addEventListener('click', logoutGoogle);
     } else {
         userContainer.innerHTML = `
-            <button id="btn-login" class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-2.5 py-1.5 rounded-lg transition shadow-sm">
+            <button id="btn-login" class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-2.5 py-1.5 rounded-lg transition shadow-sm font-medium">
                 <i class="fa-brands fa-google text-amber-400"></i>
-                <span class="hidden sm:inline">Google Drive</span>
+                <span class="hidden sm:inline">Iniciar Sesión</span>
             </button>
         `;
         document.getElementById('btn-login')?.addEventListener('click', loginWithGoogle);

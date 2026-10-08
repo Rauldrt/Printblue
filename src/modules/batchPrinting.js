@@ -3,6 +3,7 @@ import { labelConfig } from './paperSettings.js';
 import { applyDynamicPageStyle } from './singleLabel.js';
 import { showToast } from './toast.js';
 import { printBatchBluetooth } from '../services/bluetooth.js';
+import { triggerCloudSave } from '../services/cloudSync.js';
 
 export async function printBatchBT(onlySelected = false) {
     const itemsToPrint = onlySelected && selectedItemIds.size > 0 
@@ -23,6 +24,7 @@ export function setBatchItems(newItems) {
     batchItems = newItems;
     selectedItemIds.clear();
     renderBatchTable();
+    triggerCloudSave();
 }
 
 export function renderBatchTable() {
@@ -102,7 +104,10 @@ export function renderBatchTable() {
             const idx = parseInt(e.target.dataset.index);
             const field = e.target.dataset.field;
             const val = field === 'qty' ? parseInt(e.target.value) || 1 : e.target.value;
-            if (batchItems[idx]) batchItems[idx][field] = val;
+            if (batchItems[idx]) {
+                batchItems[idx][field] = val;
+                triggerCloudSave();
+            }
         });
     });
 
@@ -178,6 +183,7 @@ export function deleteSelectedItems() {
     batchItems = batchItems.filter(item => !selectedItemIds.has(item.id));
     selectedItemIds.clear();
     renderBatchTable();
+    triggerCloudSave();
     showToast(`Se eliminaron ${count} productos seleccionados`, 'info');
 }
 
@@ -193,6 +199,7 @@ export function setQtyForSelectedItems(newQty) {
         }
     });
     renderBatchTable();
+    triggerCloudSave();
     showToast(`Cantidad cambiada a ${qty} para los seleccionados`, 'success');
 }
 
@@ -206,6 +213,7 @@ export function addBatchRow(itemData = null) {
         qty: 1
     });
     renderBatchTable();
+    triggerCloudSave();
 }
 
 export function removeBatchRow(index) {
@@ -213,12 +221,14 @@ export function removeBatchRow(index) {
     if (item) selectedItemIds.delete(item.id);
     batchItems.splice(index, 1);
     renderBatchTable();
+    triggerCloudSave();
 }
 
 export function clearBatch() {
     batchItems = [];
     selectedItemIds.clear();
     renderBatchTable();
+    triggerCloudSave();
     showToast('Lista limpiada', 'info');
 }
 

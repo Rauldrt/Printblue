@@ -47,6 +47,9 @@ import {
     switchSpreadsheetTab, 
     closeMappingModal 
 } from './services/googleDrive.js';
+import { triggerCloudSave } from './services/cloudSync.js';
+
+window.triggerCloudSave = triggerCloudSave;
 
 window.showToast = showToast;
 window.switchTab = switchTab;
@@ -231,9 +234,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const el = document.getElementById(id);
         if (el) {
             el.addEventListener('input', updatePreview);
-            el.addEventListener('change', updatePreview);
+            el.addEventListener('change', () => {
+                updatePreview();
+                triggerCloudSave();
+            });
         }
     });
+
+    // Listener para cambio de protocolo Bluetooth
+    const protoSelect = document.getElementById('setting-bt-protocol');
+    if (protoSelect) {
+        protoSelect.addEventListener('change', () => {
+            triggerCloudSave();
+        });
+    }
 
     // Listeners para sliders de dimensiones de código
     ['setting-barcode-height', 'setting-barcode-width'].forEach(id => {
