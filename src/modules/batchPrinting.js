@@ -4,8 +4,8 @@ import { applyDynamicPageStyle } from './singleLabel.js';
 import { showToast } from './toast.js';
 
 export let batchItems = [
-    { id: 1, title: 'Remera Algodón M', code: '779123456789', price: '4500', qty: 2 },
-    { id: 2, title: 'Pantalón Jean T40', code: '779987654321', price: '12000', qty: 1 }
+    { id: 1, title: 'Remera Algodón M', code: '779123456789', price: '4500', extra: 'Talle M', qty: 2 },
+    { id: 2, title: 'Pantalón Jean T40', code: '779987654321', price: '12000', extra: 'Lote 104', qty: 1 }
 ];
 
 export function setBatchItems(newItems) {
@@ -21,20 +21,23 @@ export function renderBatchTable() {
     batchItems.forEach((item, index) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td class="p-3">
-                <input type="text" value="${item.title}" data-index="${index}" data-field="title" class="batch-inp w-full border rounded p-1 text-xs">
+            <td class="p-2 sm:p-3">
+                <input type="text" value="${item.title || ''}" data-index="${index}" data-field="title" class="batch-inp w-full border border-slate-200 rounded p-1.5 text-xs font-medium focus:ring-1 focus:ring-indigo-500">
             </td>
-            <td class="p-3">
-                <input type="text" value="${item.code}" data-index="${index}" data-field="code" class="batch-inp w-full border rounded p-1 text-xs font-mono">
+            <td class="p-2 sm:p-3">
+                <input type="text" value="${item.code || ''}" data-index="${index}" data-field="code" class="batch-inp w-full border border-slate-200 rounded p-1.5 text-xs font-mono focus:ring-1 focus:ring-indigo-500">
             </td>
-            <td class="p-3">
-                <input type="text" value="${item.price}" data-index="${index}" data-field="price" class="batch-inp w-full border rounded p-1 text-xs">
+            <td class="p-2 sm:p-3 w-24">
+                <input type="text" value="${item.price || ''}" data-index="${index}" data-field="price" class="batch-inp w-full border border-slate-200 rounded p-1.5 text-xs focus:ring-1 focus:ring-indigo-500">
             </td>
-            <td class="p-3">
-                <input type="number" min="1" value="${item.qty}" data-index="${index}" data-field="qty" class="batch-inp w-16 border rounded p-1 text-xs text-center font-bold">
+            <td class="p-2 sm:p-3">
+                <input type="text" value="${item.extra || ''}" placeholder="Lote / Detalle" data-index="${index}" data-field="extra" class="batch-inp w-full border border-slate-200 rounded p-1.5 text-xs text-slate-600 focus:ring-1 focus:ring-indigo-500">
             </td>
-            <td class="p-3 text-center">
-                <button data-remove-index="${index}" class="remove-batch-btn text-red-500 hover:text-red-700">
+            <td class="p-2 sm:p-3 w-16 sm:w-20">
+                <input type="number" min="1" value="${item.qty || 1}" data-index="${index}" data-field="qty" class="batch-inp w-full border border-slate-200 rounded p-1.5 text-xs text-center font-bold focus:ring-1 focus:ring-indigo-500">
+            </td>
+            <td class="p-2 sm:p-3 text-center w-10">
+                <button data-remove-index="${index}" class="remove-batch-btn text-rose-500 hover:text-rose-700 p-1 transition" title="Eliminar fila">
                     <i class="fa-solid fa-trash"></i>
                 </button>
             </td>
@@ -65,6 +68,7 @@ export function addBatchRow(itemData = null) {
         title: 'Nuevo Producto',
         code: '100' + (batchItems.length + 1),
         price: '1000',
+        extra: '',
         qty: 1
     });
     renderBatchTable();
@@ -113,15 +117,15 @@ export function printBatch() {
                     <svg id="${barcodeId}" class="max-w-full max-h-full"></svg>
                 </div>
                 <div class="w-full flex items-center justify-between text-black leading-none">
-                    <span class="truncate font-medium text-black" style="font-size: ${labelConfig.fontSizePt * 0.8}pt">SKU: ${item.code}</span>
-                    <span class="font-bold" style="font-size: ${labelConfig.fontSizePt * 1.15}pt">$ ${item.price}</span>
+                    <span class="truncate font-medium text-black" style="font-size: ${labelConfig.fontSizePt * 0.8}pt">${item.extra ? item.extra : (item.code ? `SKU: ${item.code}` : '')}</span>
+                    <span class="font-bold" style="font-size: ${labelConfig.fontSizePt * 1.15}pt">${item.price ? `$ ${item.price}` : ''}</span>
                 </div>
             `;
 
             printArea.appendChild(labelDiv);
 
             const currentId = barcodeId;
-            const currentCode = item.code;
+            const currentCode = item.code || '12345678';
             setTimeout(() => {
                 try {
                     JsBarcode(`#${currentId}`, currentCode, {

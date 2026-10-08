@@ -33,7 +33,11 @@ import {
 } from './services/firebase.js';
 import { 
     listGoogleDriveSheets, 
-    loadSpreadsheetData 
+    loadSpreadsheetMetadata, 
+    updateMappingPreview, 
+    applyMappingAndImport, 
+    switchSpreadsheetTab, 
+    closeMappingModal 
 } from './services/googleDrive.js';
 
 // Exponer funciones globales en window para interactuar con los elementos inline de la UI
@@ -52,6 +56,10 @@ window.openHelpModal = () => document.getElementById('help-modal')?.classList.re
 window.closeHelpModal = () => document.getElementById('help-modal')?.classList.add('hidden');
 window.openDriveModal = openDriveModal;
 window.closeDriveModal = () => document.getElementById('drive-modal')?.classList.add('hidden');
+window.updateMappingPreview = updateMappingPreview;
+window.applyMappingAndImport = applyMappingAndImport;
+window.switchSpreadsheetTab = switchSpreadsheetTab;
+window.closeMappingModal = closeMappingModal;
 window.installPWA = installPWA;
 
 // PWA Install Prompt
@@ -134,7 +142,7 @@ async function openDriveModal() {
     }
 
     listContainer.innerHTML = sheets.map(file => `
-        <div class="flex items-center justify-between p-3 border border-slate-200 rounded-xl hover:border-indigo-400 hover:bg-indigo-50/50 transition cursor-pointer" onclick="selectDriveSheet('${file.id}')">
+        <div class="flex items-center justify-between p-3 border border-slate-200 rounded-xl hover:border-indigo-400 hover:bg-indigo-50/50 transition cursor-pointer" onclick="selectDriveSheet('${file.id}', '${encodeURIComponent(file.name)}')">
             <div class="flex items-center space-x-3">
                 <i class="fa-solid fa-file-excel text-emerald-600 text-xl"></i>
                 <div>
@@ -143,15 +151,15 @@ async function openDriveModal() {
                 </div>
             </div>
             <button class="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-lg">
-                Importar
+                Seleccionar
             </button>
         </div>
     `).join('');
 }
 
-window.selectDriveSheet = async function(fileId) {
+window.selectDriveSheet = async function(fileId, fileName) {
     window.closeDriveModal();
-    await loadSpreadsheetData(fileId);
+    await loadSpreadsheetMetadata(fileId, decodeURIComponent(fileName));
 };
 
 window.loginWithGoogle = async function() {
