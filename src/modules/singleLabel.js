@@ -2,6 +2,28 @@ import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
 import { labelConfig } from './paperSettings.js';
 import { showToast } from './toast.js';
+import { printSingleLabelBluetooth, isBluetoothConnected } from '../services/bluetooth.js';
+
+export async function printSingleDirectBT() {
+    const showTitle = document.getElementById('chk-show-title')?.checked ?? true;
+    const showPrice = document.getElementById('chk-show-price')?.checked ?? true;
+    const showExtra = document.getElementById('chk-show-extra')?.checked ?? true;
+    const currency = document.getElementById('inp-currency')?.value || '$';
+
+    const rawTitle = document.getElementById('inp-title')?.value || '';
+    const code = document.getElementById('inp-code')?.value || '12345678';
+    const symbology = document.getElementById('inp-symbology')?.value || 'CODE128';
+    const rawPrice = document.getElementById('inp-price')?.value || '';
+    const rawExtra = document.getElementById('inp-extra')?.value || '';
+    const qty = parseInt(document.getElementById('inp-quantity')?.value) || 1;
+
+    const title = showTitle ? rawTitle : '';
+    const price = showPrice && rawPrice ? `${currency} ${rawPrice}` : '';
+    const extra = showExtra ? rawExtra : '';
+
+    const item = { title, code, symbology, price, extra };
+    await printSingleLabelBluetooth(item, qty);
+}
 
 export function adjustQty(val) {
     const input = document.getElementById('inp-quantity');

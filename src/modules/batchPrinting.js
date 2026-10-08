@@ -2,6 +2,14 @@ import JsBarcode from 'jsbarcode';
 import { labelConfig } from './paperSettings.js';
 import { applyDynamicPageStyle } from './singleLabel.js';
 import { showToast } from './toast.js';
+import { printBatchBluetooth } from '../services/bluetooth.js';
+
+export async function printBatchBT(onlySelected = false) {
+    const itemsToPrint = onlySelected && selectedItemIds.size > 0 
+        ? batchItems.filter(item => selectedItemIds.has(item.id))
+        : batchItems;
+    await printBatchBluetooth(itemsToPrint);
+}
 
 export let batchItems = [
     { id: 1, title: 'Remera Algodón M', code: '779123456789', price: '4500', extra: 'Talle M', qty: 2 },

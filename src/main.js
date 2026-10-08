@@ -10,7 +10,8 @@ import {
     updatePreview, 
     adjustQty, 
     triggerPrintSystem, 
-    downloadLabelImage 
+    downloadLabelImage,
+    printSingleDirectBT 
 } from './modules/singleLabel.js';
 import { 
     batchItems, 
@@ -18,6 +19,7 @@ import {
     addBatchRow, 
     clearBatch, 
     printBatch,
+    printBatchBT,
     toggleSelectAll,
     deleteSelectedItems,
     setQtyForSelectedItems
@@ -25,6 +27,7 @@ import {
 import { 
     connectBluetoothPrinter, 
     isBluetoothConnected, 
+    updateBluetoothUI,
     sendRawToPrinter, 
     buildTSPLCommands 
 } from './services/bluetooth.js';
@@ -43,7 +46,7 @@ import {
     closeMappingModal 
 } from './services/googleDrive.js';
 
-// Exponer funciones globales en window para interactuar con los elementos inline de la UI
+window.showToast = showToast;
 window.switchTab = switchTab;
 window.adjustQty = adjustQty;
 window.updatePreview = updatePreview;
@@ -51,9 +54,11 @@ window.applyPreset = (w, h) => applyPreset(w, h, updatePreview);
 window.saveSettings = () => saveSettings(updatePreview);
 window.triggerPrintSystem = triggerPrintSystem;
 window.downloadLabelImage = downloadLabelImage;
+window.printSingleDirectBT = printSingleDirectBT;
 window.addBatchRow = addBatchRow;
 window.clearBatch = clearBatch;
 window.printBatch = printBatch;
+window.printBatchBT = printBatchBT;
 window.toggleSelectAll = toggleSelectAll;
 window.deleteSelectedItems = deleteSelectedItems;
 window.setQtyForSelectedItems = setQtyForSelectedItems;
@@ -201,6 +206,12 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSavedSettings(updatePreview);
     renderBatchTable();
     setupNetworkListeners();
+    updateBluetoothUI();
+
+    const btProtoSelect = document.getElementById('setting-bt-protocol');
+    if (btProtoSelect) {
+        btProtoSelect.value = localStorage.getItem('bt_protocol') || 'escpos';
+    }
 
     const initialTab = window.location.hash ? window.location.hash.replace('#', '') : 'single';
     if (['single', 'batch', 'settings'].includes(initialTab)) {
