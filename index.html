@@ -267,6 +267,15 @@
                             <span>Guardar PNG</span>
                         </button>
                     </div>
+
+                    <!-- Botón rápido para alinear/avanzar rollo -->
+                    <div class="pt-1 flex items-center justify-between text-xs text-slate-500 px-1">
+                        <span class="text-[11px] text-slate-400">¿Nuevo rollo o desalineado?</span>
+                        <button type="button" onclick="feedOneLabelBluetooth()" class="inline-flex items-center space-x-1.5 text-indigo-600 hover:text-indigo-700 hover:underline font-semibold text-xs py-1 px-2 rounded-lg hover:bg-indigo-50 transition">
+                            <i class="fa-solid fa-forward-step"></i>
+                            <span>Avanzar 1 Etiqueta (Test de Paso)</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -411,6 +420,74 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Tamaño Fuente Texto (pt)</label>
                         <input type="number" id="setting-fontsize" value="10" onchange="saveSettings()" class="w-full text-sm border-slate-300 rounded-lg p-2.5 border">
+                    </div>
+                </div>
+
+                <!-- Control de Calibración de Rollo y Anti-Desplazamiento -->
+                <div class="pt-3 border-t border-slate-100 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-1.5">
+                            <i class="fa-solid fa-arrows-split-up-and-left text-indigo-600"></i>
+                            <span>Calibración de Paso y Anti-Desplazamiento</span>
+                        </h3>
+                        <span class="text-[10px] bg-emerald-50 text-emerald-700 font-semibold px-2 py-0.5 rounded border border-emerald-200">Anti-drift Activo</span>
+                    </div>
+
+                    <!-- Modo de Avance / Parada -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Modo de Avance de Papel:</label>
+                        <select id="setting-feed-mode" onchange="setFeedMode(this.value)" class="w-full text-xs border-slate-300 rounded-lg p-2.5 border bg-white font-medium focus:ring-1 focus:ring-indigo-500">
+                            <option value="exact">Paso Milimétrico Exacto (Recomendado para Go Link GL033 / 58mm)</option>
+                            <option value="sensor">Sensor Óptico de Ranura / Gap (Form Feed - Si la impresora tiene sensor)</option>
+                            <option value="receipt">Ticket Continuo (Expulsión tradicional hacia cuchilla)</option>
+                        </select>
+                        <p class="text-[10px] text-slate-400 mt-1">
+                            El modo "Paso Milimétrico Exacto" elimina los saltos ciegos de ticket y calcula el avance milimétrico exacto (Alto + Separación Gap) para que la impresión no se mueva con cada etiqueta.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <!-- Separación entre Etiquetas (Gap) -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-[11px] font-semibold text-slate-700">Separación entre Etiquetas (Gap)</label>
+                                <span id="gap-val" class="text-xs font-bold text-indigo-600 bg-white border border-slate-200 px-2 py-0.5 rounded shadow-2xs">2.0 mm</span>
+                            </div>
+                            <input type="range" id="setting-gap" min="0" max="10" step="0.5" value="2" 
+                                oninput="syncGapInput(this.value)" class="w-full accent-indigo-600 cursor-pointer">
+                            <p class="text-[10px] text-slate-400 mt-0.5">Espacio físico vacío entre stickers (usualmente 2 a 3 mm).</p>
+                        </div>
+
+                        <!-- Micro-ajuste / Offset de Avance -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-[11px] font-semibold text-slate-700">Micro-Ajuste de Tracción (Offset)</label>
+                                <span id="feed-offset-val" class="text-xs font-bold text-indigo-600 bg-white border border-slate-200 px-2 py-0.5 rounded shadow-2xs">+0.0 mm</span>
+                            </div>
+                            <input type="range" id="setting-feed-offset" min="-4.0" max="4.0" step="0.2" value="0" 
+                                oninput="syncFeedOffsetInput(this.value)" class="w-full accent-indigo-600 cursor-pointer">
+                            <p class="text-[10px] text-slate-400 mt-0.5">Corrige si el rodillo patina décimas tras imprimir varias seguidas.</p>
+                        </div>
+                    </div>
+
+                    <!-- Botón de Test de Paso -->
+                    <div class="flex items-center justify-between pt-1">
+                        <button type="button" onclick="feedOneLabelBluetooth()" class="inline-flex items-center space-x-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-semibold px-3 py-2 rounded-lg transition shadow-2xs">
+                            <i class="fa-solid fa-forward-step"></i>
+                            <span>Probar Avance: Avanzar 1 Etiqueta</span>
+                        </button>
+                        <span class="text-[11px] text-slate-400">Prueba que el rollo frene justo en la ranura</span>
+                    </div>
+
+                    <!-- Cuadro explicativo para Go Link GL033 -->
+                    <div class="bg-amber-50 border border-amber-200/80 rounded-xl p-3 text-xs text-amber-900 space-y-1">
+                        <div class="flex items-center space-x-1.5 font-bold text-amber-800">
+                            <i class="fa-solid fa-circle-info text-amber-600"></i>
+                            <span>¿Por qué se desplazaba la impresión en la Go Link GL033?</span>
+                        </div>
+                        <p class="text-[11px] text-amber-800/90 leading-relaxed">
+                            Las impresoras térmicas móviles de 58 mm como la <strong>Go Link GL033</strong> están diseñadas originalmente para tickets continuos y carecen de sensor óptico de ranura. Con el nuevo sistema de <strong>Paso Milimétrico Exacto</strong>, PrintLabel Pro envía a los motores el avance exacto equivalente a la altura de tu etiqueta más la separación física (Gap), eliminando los saltos arbitrarios de papel.
+                        </p>
                     </div>
                 </div>
 

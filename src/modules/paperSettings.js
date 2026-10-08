@@ -7,6 +7,9 @@ export let labelConfig = {
     paddingMm: 2,           // margen lateral (izq / der)
     paddingTopMm: 2.0,      // margen superior en mm (0 a 15)
     paddingBottomMm: 2.0,   // margen inferior en mm (0 a 15)
+    gapMm: 2.0,             // separación física entre etiquetas en mm (0 a 15)
+    feedOffsetMm: 0.0,      // micro-ajuste de arrastre/tracción en mm (-4 a +4)
+    feedMode: 'exact',      // 'exact' (paso milimétrico sin sensor) | 'sensor' (gap sensor / FF) | 'receipt' (ticket continuo)
     fontSizePt: 10,
     barcodeHeight: 55,      // porcentaje de altura (25% a 80%)
     barcodeWidth: 2.0,      // grosor de barra (1.0 a 3.0)
@@ -73,6 +76,23 @@ export function loadSavedSettings(onUpdateCallback) {
         if (footerBadge) footerBadge.innerText = `${(labelConfig.spacingFooter ?? 2.0).toFixed(1)} mm`;
     });
 
+    // Cargar y sincronizar configuración de calibración de rollo / anti-desplazamiento
+    const gapInput = document.getElementById('setting-gap');
+    const gapBadge = document.getElementById('gap-val');
+    const offsetInput = document.getElementById('setting-feed-offset');
+    const offsetBadge = document.getElementById('feed-offset-val');
+    const feedModeSelect = document.getElementById('setting-feed-mode');
+
+    const gapVal = labelConfig.gapMm ?? 2.0;
+    const offsetVal = labelConfig.feedOffsetMm ?? 0.0;
+    const feedModeVal = labelConfig.feedMode || 'exact';
+
+    if (gapInput) gapInput.value = gapVal;
+    if (gapBadge) gapBadge.innerText = `${gapVal.toFixed(1)} mm`;
+    if (offsetInput) offsetInput.value = offsetVal;
+    if (offsetBadge) offsetBadge.innerText = `${offsetVal >= 0 ? '+' : ''}${offsetVal.toFixed(1)} mm`;
+    if (feedModeSelect) feedModeSelect.value = feedModeVal;
+
     updateVerticalAlignUI();
 
     if (typeof onUpdateCallback === 'function') onUpdateCallback();
@@ -85,6 +105,14 @@ export function saveSettings(onUpdateCallback) {
     labelConfig.fontSizePt = parseFloat(document.getElementById('setting-fontsize')?.value) || 10;
     labelConfig.barcodeHeight = parseInt(document.getElementById('setting-barcode-height')?.value) || 55;
     labelConfig.barcodeWidth = parseFloat(document.getElementById('setting-barcode-width')?.value) || 2.0;
+
+    const gapInput = document.getElementById('setting-gap');
+    const offsetInput = document.getElementById('setting-feed-offset');
+    const feedModeSelect = document.getElementById('setting-feed-mode');
+
+    if (gapInput) labelConfig.gapMm = parseFloat(gapInput.value) || 0;
+    if (offsetInput) labelConfig.feedOffsetMm = parseFloat(offsetInput.value) || 0;
+    if (feedModeSelect) labelConfig.feedMode = feedModeSelect.value;
 
     const topInp = document.getElementById('setting-margin-top-settings') || document.getElementById('setting-margin-top-single');
     const bottomInp = document.getElementById('setting-margin-bottom-settings') || document.getElementById('setting-margin-bottom-single');
@@ -145,6 +173,42 @@ export function syncSpacingInputs(type, val, onUpdateCallback) {
             if (badge) badge.innerText = `${num.toFixed(1)} mm`;
         });
     }
+
+    localStorage.setItem('printlabel_config', JSON.stringify(labelConfig));
+    triggerCloudSave();
+    if (typeof onUpdateCallback === 'function') onUpdateCallback();
+}
+
+export function syncGapInput(val, onUpdateCallback) {
+    const num = parseFloat(val) || 0;
+    labelConfig.gapMm = num;
+    const gapInput = document.getElementById('setting-gap');
+    const gapBadge = document.getElementById('gap-val');
+    if (gapInput) gapInput.value = num;
+    if (gapBadge) gapBadge.innerText = `${num.toFixed(1)} mm`;
+
+    localStorage.setItem('printlabel_config', JSON.stringify(labelConfig));
+    triggerCloudSave();
+    if (typeof onUpdateCallback === 'function') onUpdateCallback();
+}
+
+export function syncFeedOffsetInput(val, onUpdateCallback) {
+    const num = parseFloat(val) || 0;
+    labelConfig.feedOffsetMm = num;
+    const offsetInput = document.getElementById('setting-feed-offset');
+    const offsetBadge = document.getElementById('feed-offset-val');
+    if (offsetInput) offsetInput.value = num;
+    if (offsetBadge) offsetBadge.innerText = `${num >= 0 ? '+' : ''}${num.toFixed(1)} mm`;
+
+    localStorage.setItem('printlabel_config', JSON.stringify(labelConfig));
+    triggerCloudSave();
+    if (typeof onUpdateCallback === 'function') onUpdateCallback();
+}
+
+export function setFeedMode(mode, onUpdateCallback) {
+    labelConfig.feedMode = mode;
+    const feedModeSelect = document.getElementById('setting-feed-mode');
+    if (feedModeSelect) feedModeSelect.value = mode;
 
     localStorage.setItem('printlabel_config', JSON.stringify(labelConfig));
     triggerCloudSave();

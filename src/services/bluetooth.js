@@ -287,9 +287,9 @@ export async function renderLabelToMonochromeCanvas(item, config) {
 }
 
 /**
- * Convierte un Canvas a comandos ESC/POS Raster (GS v 0) compatibles con cualquier impresora térmica
+ * Convierte un Canvas a comandos ESC/POS Raster (GS v 0) con control de paso y anti-desplazamiento
  */
-export function canvasToEscPosCommands(canvas) {
+export function canvasToEscPosCommands(canvas, config = labelConfig) {
     const ctx = canvas.getContext('2d');
     const width = canvas.width;
     const height = canvas.height;
@@ -331,10 +331,31 @@ export function canvasToEscPosCommands(canvas) {
         xL, xH, yL, yH
     ]);
 
-    const footer = new Uint8Array([
-        0x0A, 0x0A, 0x0A,       // 3 saltos de línea para expulsar sobre la barra de corte
-        0x1D, 0x56, 0x01        // Corte parcial si lo soporta
-    ]);
+    // Pie de comandos dinámico para control de paso y anti-desplazamiento
+    const feedMode = config.feedMode || 'exact';
+    const footerBytes = [];
+
+    if (feedMode === 'sensor') {
+        // Modo sensor óptico: alimentar hasta la siguiente ranura/marca (GS FF)
+        footerBytes.push(0x1D, 0x0C);
+    } else if (feedMode === 'receipt') {
+        // Modo recibo continuo: 3 saltos de línea para expulsar sobre la barra de corte
+        footerBytes.push(0x0A, 0x0A, 0x0A, 0x1D, 0x56, 0x01);
+    } else {
+        // Modo 'exact' (Paso Milimétrico Exacto para Go Link GL033 y portátiles 58mm):
+        // La etiqueta ya avanzó exactamente 'height' dots (heightMm * 8).
+        // Avanzamos ÚNICAMENTE la separación física entre etiquetas (Gap) + micro-ajuste (Offset).
+        // Sin saltos de línea ciegos de ticket ni comandos de corte innecesarios.
+        const gapMm = Math.max(0, (config.gapMm ?? 2.0) + (config.feedOffsetMm ?? 0.0));
+        let remainingDots = Math.round(gapMm * 8);
+        while (remainingDots > 0) {
+            const chunk = Math.min(255, remainingDots);
+            footerBytes.push(0x1B, 0x4A, chunk); // ESC J n: alimentar exactamente n dots (8 dots = 1 mm)
+            remainingDots -= chunk;
+        }
+    }
+
+    const footer = new Uint8Array(footerBytes);
 
     // Combinar en un único buffer Uint8Array
     const fullCommand = new Uint8Array(header.length + rasterBytes.length + footer.length);
@@ -346,12 +367,49 @@ export function canvasToEscPosCommands(canvas) {
 }
 
 /**
+ * Avanza exactamente 1 etiqueta para calibrar o alinear un nuevo rollo
+ */
+export async function feedOneLabelBluetooth() {
+    if (!isBluetoothConnected()) {
+        const connected = await connectBluetoothPrinter();
+        if (!connected) return;
+    }
+
+    const devName = bluetoothDevice?.name || 'Impresora';
+    showToast(`Avanzando 1 etiqueta en ${devName}...`, 'info');
+
+    try {
+        const feedMode = labelConfig.feedMode || 'exact';
+        if (feedMode === 'sensor') {
+            await sendRawToPrinter(new Uint8Array([0x1D, 0x0C]));
+        } else {
+            const totalMm = Math.max(0, (labelConfig.heightMm || 44) + (labelConfig.gapMm ?? 2.0) + (labelConfig.feedOffsetMm ?? 0.0));
+            let remainingDots = Math.round(totalMm * 8);
+            const feedBytes = [];
+            while (remainingDots > 0) {
+                const chunk = Math.min(255, remainingDots);
+                feedBytes.push(0x1B, 0x4A, chunk);
+                remainingDots -= chunk;
+            }
+            if (feedBytes.length > 0) {
+                await sendRawToPrinter(new Uint8Array(feedBytes));
+            }
+        }
+        showToast('Avance de 1 etiqueta completado', 'success');
+    } catch (e) {
+        console.error('Error al avanzar etiqueta:', e);
+        showToast('Error al transmitir avance a la impresora', 'error');
+    }
+}
+
+/**
  * Generador nativo TSPL (para impresoras en modo etiquetas con calibración de gap)
  */
 export function buildTSPLCommands(item, config, copies = 1) {
     const { widthMm, heightMm } = config;
+    const gapMm = config.gapMm ?? 2.0;
     let tspl = `SIZE ${widthMm} mm, ${heightMm} mm\r\n`;
-    tspl += `GAP 2 mm, 0 mm\r\n`;
+    tspl += `GAP ${gapMm} mm, 0 mm\r\n`;
     tspl += `DIRECTION 1\r\n`;
     tspl += `CLS\r\n`;
 

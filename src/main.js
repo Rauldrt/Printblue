@@ -7,6 +7,9 @@ import {
     applyPreset,
     syncSpacingInputs,
     syncMarginInputs,
+    syncGapInput,
+    syncFeedOffsetInput,
+    setFeedMode,
     setVerticalAlign
 } from './modules/paperSettings.js';
 import { 
@@ -32,7 +35,8 @@ import {
     isBluetoothConnected, 
     updateBluetoothUI,
     sendRawToPrinter, 
-    buildTSPLCommands 
+    buildTSPLCommands,
+    feedOneLabelBluetooth
 } from './services/bluetooth.js';
 import { 
     initFirebase, 
@@ -60,7 +64,11 @@ window.applyPreset = (w, h) => applyPreset(w, h, updatePreview);
 window.saveSettings = () => saveSettings(updatePreview);
 window.syncMarginInputs = (type, val) => syncMarginInputs(type, val, updatePreview);
 window.syncSpacingInputs = (type, val) => syncSpacingInputs(type, val, updatePreview);
+window.syncGapInput = (val) => syncGapInput(val, updatePreview);
+window.syncFeedOffsetInput = (val) => syncFeedOffsetInput(val, updatePreview);
+window.setFeedMode = (mode) => setFeedMode(mode, updatePreview);
 window.setVerticalAlign = (align) => setVerticalAlign(align, updatePreview);
+window.feedOneLabelBluetooth = feedOneLabelBluetooth;
 window.triggerPrintSystem = triggerPrintSystem;
 window.downloadLabelImage = downloadLabelImage;
 window.printSingleDirectBT = printSingleDirectBT;
