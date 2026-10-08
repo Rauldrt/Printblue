@@ -171,8 +171,10 @@ export async function renderLabelToMonochromeCanvas(item, config) {
     ctx.fillRect(0, 0, dotsWidth, dotsHeight);
     ctx.fillStyle = '#000000';
 
-    const padding = Math.round(config.paddingMm * 8);
-    const contentWidth = dotsWidth - (padding * 2);
+    const paddingTopDots = Math.round((config.paddingTopMm ?? config.paddingMm ?? 2.0) * 8);
+    const paddingBottomDots = Math.round((config.paddingBottomMm ?? config.paddingMm ?? 2.0) * 8);
+    const paddingSidesDots = Math.round((config.paddingMm ?? 2.0) * 8);
+    const contentWidth = dotsWidth - (paddingSidesDots * 2);
 
     const spacingTitleDots = Math.round((config.spacingTitle ?? 2.0) * 8);
     const spacingFooterDots = Math.round((config.spacingFooter ?? 2.0) * 8);
@@ -192,14 +194,14 @@ export async function renderLabelToMonochromeCanvas(item, config) {
 
     const totalContentHeight = titleHeight + titleSpacing + barcodeAreaHeight + barcodeSpacing + footerHeight;
 
-    let currentY = padding;
+    const availableSpace = dotsHeight - paddingTopDots - paddingBottomDots;
+    let currentY = paddingTopDots;
     if (vAlign === 'center') {
-        const availableSpace = dotsHeight - (padding * 2);
         if (availableSpace > totalContentHeight) {
-            currentY = padding + Math.round((availableSpace - totalContentHeight) / 2);
+            currentY = paddingTopDots + Math.round((availableSpace - totalContentHeight) / 2);
         }
     } else if (vAlign === 'flex-start') {
-        currentY = padding;
+        currentY = paddingTopDots;
     }
 
     // 1. Título
@@ -257,20 +259,20 @@ export async function renderLabelToMonochromeCanvas(item, config) {
     // 3. Footer: Extra a la izquierda y Precio a la derecha
     let footerY = currentY;
     if (vAlign === 'space-between') {
-        footerY = dotsHeight - padding - footerFontSize;
+        footerY = dotsHeight - paddingBottomDots - footerFontSize;
     }
     // Asegurar que no rebase el margen del papel
-    footerY = Math.min(footerY, dotsHeight - padding - footerFontSize);
+    footerY = Math.min(footerY, dotsHeight - paddingBottomDots - footerFontSize);
 
     ctx.font = `bold ${footerFontSize}px sans-serif`;
     ctx.textBaseline = 'top';
 
     if (item.extra) {
         ctx.textAlign = 'left';
-        ctx.fillText(item.extra, padding, footerY, contentWidth * 0.6);
+        ctx.fillText(item.extra, paddingSidesDots, footerY, contentWidth * 0.6);
     } else if (item.code) {
         ctx.textAlign = 'left';
-        ctx.fillText(`SKU: ${item.code}`, padding, footerY, contentWidth * 0.6);
+        ctx.fillText(`SKU: ${item.code}`, paddingSidesDots, footerY, contentWidth * 0.6);
     }
 
     if (item.price) {
@@ -278,7 +280,7 @@ export async function renderLabelToMonochromeCanvas(item, config) {
         ctx.font = `bold ${Math.round(footerFontSize * 1.2)}px sans-serif`;
         const priceStr = String(item.price).trim();
         const formattedPrice = /^[^\d]/.test(priceStr) ? priceStr : `$ ${priceStr}`;
-        ctx.fillText(formattedPrice, dotsWidth - padding, footerY, contentWidth * 0.4);
+        ctx.fillText(formattedPrice, dotsWidth - paddingSidesDots, footerY, contentWidth * 0.4);
     }
 
     return canvas;
@@ -356,7 +358,7 @@ export function buildTSPLCommands(item, config, copies = 1) {
     const spacingTitleDots = Math.round((config.spacingTitle ?? 2.0) * 8);
     const spacingFooterDots = Math.round((config.spacingFooter ?? 2.0) * 8);
 
-    let y = Math.max(15, Math.round(config.paddingMm * 8));
+    let y = Math.max(10, Math.round((config.paddingTopMm ?? config.paddingMm ?? 2.0) * 8));
     if (item.title) {
         tspl += `TEXT 20,${y},"3",0,1,1,"${item.title.slice(0, 30)}"\r\n`;
         y += 40 + spacingTitleDots;

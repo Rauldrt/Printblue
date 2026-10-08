@@ -51,7 +51,10 @@ export function applyDynamicPageStyle() {
                 width: ${labelConfig.widthMm}mm !important;
                 height: ${labelConfig.heightMm}mm !important;
                 max-height: ${labelConfig.heightMm}mm !important;
-                padding: ${labelConfig.paddingMm}mm !important;
+                padding-top: ${labelConfig.paddingTopMm ?? labelConfig.paddingMm ?? 2.0}mm !important;
+                padding-bottom: ${labelConfig.paddingBottomMm ?? labelConfig.paddingMm ?? 2.0}mm !important;
+                padding-left: ${labelConfig.paddingMm ?? 2.0}mm !important;
+                padding-right: ${labelConfig.paddingMm ?? 2.0}mm !important;
                 display: flex !important;
                 flex-direction: column !important;
                 align-items: center !important;
@@ -81,14 +84,19 @@ export function updatePreview() {
     // Proporción de pantalla (1 mm ~ 3.78 px)
     const pxWidth = Math.round(labelConfig.widthMm * 3.78);
     const pxHeight = Math.round(labelConfig.heightMm * 3.78);
-    const pxPadding = Math.round(labelConfig.paddingMm * 3.78);
+    const pxPaddingTop = Math.round((labelConfig.paddingTopMm ?? labelConfig.paddingMm ?? 2.0) * 3.78);
+    const pxPaddingBottom = Math.round((labelConfig.paddingBottomMm ?? labelConfig.paddingMm ?? 2.0) * 3.78);
+    const pxPaddingSides = Math.round((labelConfig.paddingMm ?? 2.0) * 3.78);
     const spacingTitlePx = Math.round((labelConfig.spacingTitle ?? 2.0) * 3.78);
     const spacingFooterPx = Math.round((labelConfig.spacingFooter ?? 2.0) * 3.78);
     const vAlign = labelConfig.verticalAlign || 'center';
 
     container.style.width = `${pxWidth}px`;
     container.style.height = `${pxHeight}px`;
-    container.style.padding = `${pxPadding}px`;
+    container.style.paddingTop = `${pxPaddingTop}px`;
+    container.style.paddingBottom = `${pxPaddingBottom}px`;
+    container.style.paddingLeft = `${pxPaddingSides}px`;
+    container.style.paddingRight = `${pxPaddingSides}px`;
     container.style.justifyContent = vAlign;
 
     const title = document.getElementById('inp-title')?.value || '';
@@ -173,7 +181,10 @@ export function triggerPrintSystem() {
         labelDiv.className = 'print-label-item thermal-paper page-break flex flex-col items-center text-center overflow-hidden box-border mx-auto my-0';
         labelDiv.style.width = `${labelConfig.widthMm}mm`;
         labelDiv.style.height = `${labelConfig.heightMm}mm`;
-        labelDiv.style.padding = `${labelConfig.paddingMm}mm`;
+        labelDiv.style.paddingTop = `${labelConfig.paddingTopMm ?? labelConfig.paddingMm ?? 2.0}mm`;
+        labelDiv.style.paddingBottom = `${labelConfig.paddingBottomMm ?? labelConfig.paddingMm ?? 2.0}mm`;
+        labelDiv.style.paddingLeft = `${labelConfig.paddingMm ?? 2.0}mm`;
+        labelDiv.style.paddingRight = `${labelConfig.paddingMm ?? 2.0}mm`;
         labelDiv.style.justifyContent = vAlign;
 
         const barcodeId = `print-barcode-${i}`;

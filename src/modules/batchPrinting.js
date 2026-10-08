@@ -263,7 +263,10 @@ export function printBatch(onlySelected = false) {
             labelDiv.className = 'print-label-item thermal-paper page-break flex flex-col items-center text-center overflow-hidden box-border mx-auto my-0';
             labelDiv.style.width = `${labelConfig.widthMm}mm`;
             labelDiv.style.height = `${labelConfig.heightMm}mm`;
-            labelDiv.style.padding = `${labelConfig.paddingMm}mm`;
+            labelDiv.style.paddingTop = `${labelConfig.paddingTopMm ?? labelConfig.paddingMm ?? 2.0}mm`;
+            labelDiv.style.paddingBottom = `${labelConfig.paddingBottomMm ?? labelConfig.paddingMm ?? 2.0}mm`;
+            labelDiv.style.paddingLeft = `${labelConfig.paddingMm ?? 2.0}mm`;
+            labelDiv.style.paddingRight = `${labelConfig.paddingMm ?? 2.0}mm`;
             labelDiv.style.justifyContent = vAlign;
 
             const barcodeId = `batch-barcode-${counter}`;

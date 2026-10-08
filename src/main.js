@@ -6,6 +6,7 @@ import {
     saveSettings, 
     applyPreset,
     syncSpacingInputs,
+    syncMarginInputs,
     setVerticalAlign
 } from './modules/paperSettings.js';
 import { 
@@ -57,6 +58,7 @@ window.adjustQty = adjustQty;
 window.updatePreview = updatePreview;
 window.applyPreset = (w, h) => applyPreset(w, h, updatePreview);
 window.saveSettings = () => saveSettings(updatePreview);
+window.syncMarginInputs = (type, val) => syncMarginInputs(type, val, updatePreview);
 window.syncSpacingInputs = (type, val) => syncSpacingInputs(type, val, updatePreview);
 window.setVerticalAlign = (align) => setVerticalAlign(align, updatePreview);
 window.triggerPrintSystem = triggerPrintSystem;

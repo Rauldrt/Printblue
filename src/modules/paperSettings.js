@@ -4,7 +4,9 @@ import { triggerCloudSave } from '../services/cloudSync.js';
 export let labelConfig = {
     widthMm: 55,
     heightMm: 44,
-    paddingMm: 2,
+    paddingMm: 2,           // margen lateral (izq / der)
+    paddingTopMm: 2.0,      // margen superior en mm (0 a 15)
+    paddingBottomMm: 2.0,   // margen inferior en mm (0 a 15)
     fontSizePt: 10,
     barcodeHeight: 55,      // porcentaje de altura (25% a 80%)
     barcodeWidth: 2.0,      // grosor de barra (1.0 a 3.0)
@@ -42,6 +44,22 @@ export function loadSavedSettings(onUpdateCallback) {
     if (bHeightVal) bHeightVal.innerText = `${labelConfig.barcodeHeight}%`;
     if (bWidthVal) bWidthVal.innerText = `${labelConfig.barcodeWidth}x`;
 
+    // Cargar y sincronizar sliders de márgenes superior e inferior
+    ['single', 'settings'].forEach(ctx => {
+        const topInp = document.getElementById(`setting-margin-top-${ctx}`);
+        const bottomInp = document.getElementById(`setting-margin-bottom-${ctx}`);
+        const topBadge = document.getElementById(`margin-top-val-${ctx}`);
+        const bottomBadge = document.getElementById(`margin-bottom-val-${ctx}`);
+
+        const topVal = labelConfig.paddingTopMm ?? labelConfig.paddingMm ?? 2.0;
+        const bottomVal = labelConfig.paddingBottomMm ?? labelConfig.paddingMm ?? 2.0;
+
+        if (topInp) topInp.value = topVal;
+        if (bottomInp) bottomInp.value = bottomVal;
+        if (topBadge) topBadge.innerText = `${topVal.toFixed(1)} mm`;
+        if (bottomBadge) bottomBadge.innerText = `${bottomVal.toFixed(1)} mm`;
+    });
+
     // Cargar y sincronizar sliders de espaciado
     ['single', 'settings'].forEach(ctx => {
         const titleInp = document.getElementById(`setting-spacing-title-${ctx}`);
@@ -68,10 +86,40 @@ export function saveSettings(onUpdateCallback) {
     labelConfig.barcodeHeight = parseInt(document.getElementById('setting-barcode-height')?.value) || 55;
     labelConfig.barcodeWidth = parseFloat(document.getElementById('setting-barcode-width')?.value) || 2.0;
 
+    const topInp = document.getElementById('setting-margin-top-settings') || document.getElementById('setting-margin-top-single');
+    const bottomInp = document.getElementById('setting-margin-bottom-settings') || document.getElementById('setting-margin-bottom-single');
+    if (topInp) labelConfig.paddingTopMm = parseFloat(topInp.value) || 2.0;
+    if (bottomInp) labelConfig.paddingBottomMm = parseFloat(bottomInp.value) || 2.0;
+
     const bHeightVal = document.getElementById('barcode-height-val');
     const bWidthVal = document.getElementById('barcode-width-val');
     if (bHeightVal) bHeightVal.innerText = `${labelConfig.barcodeHeight}%`;
     if (bWidthVal) bWidthVal.innerText = `${labelConfig.barcodeWidth}x`;
+
+    localStorage.setItem('printlabel_config', JSON.stringify(labelConfig));
+    triggerCloudSave();
+    if (typeof onUpdateCallback === 'function') onUpdateCallback();
+}
+
+export function syncMarginInputs(type, val, onUpdateCallback) {
+    const num = parseFloat(val) || 0;
+    if (type === 'top') {
+        labelConfig.paddingTopMm = num;
+        ['single', 'settings'].forEach(ctx => {
+            const el = document.getElementById(`setting-margin-top-${ctx}`);
+            const badge = document.getElementById(`margin-top-val-${ctx}`);
+            if (el) el.value = num;
+            if (badge) badge.innerText = `${num.toFixed(1)} mm`;
+        });
+    } else if (type === 'bottom') {
+        labelConfig.paddingBottomMm = num;
+        ['single', 'settings'].forEach(ctx => {
+            const el = document.getElementById(`setting-margin-bottom-${ctx}`);
+            const badge = document.getElementById(`margin-bottom-val-${ctx}`);
+            if (el) el.value = num;
+            if (badge) badge.innerText = `${num.toFixed(1)} mm`;
+        });
+    }
 
     localStorage.setItem('printlabel_config', JSON.stringify(labelConfig));
     triggerCloudSave();

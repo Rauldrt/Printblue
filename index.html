@@ -170,16 +170,37 @@
                 </div>
 
                 <!-- Ajuste Manual de Separación y Distribución -->
-                <div class="pt-4 border-t border-slate-200 space-y-3">
+                <div class="pt-4 border-t border-slate-200 space-y-3.5">
                     <div class="flex items-center justify-between">
                         <h3 class="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center space-x-1.5">
                             <i class="fa-solid fa-arrows-up-down text-indigo-600"></i>
-                            <span>Separación y Distribución</span>
+                            <span>Márgenes y Separaciones</span>
                         </h3>
-                        <span class="text-[10px] text-slate-400 font-medium">Ajuste en vivo</span>
+                        <span class="text-[10px] text-slate-400 font-medium">Ajuste en vivo (mm)</span>
                     </div>
 
-                    <!-- Sliders de Separación -->
+                    <!-- Sliders de Márgenes Superior e Inferior -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-2.5 bg-slate-50/70 rounded-xl border border-slate-200/80">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-[11px] font-semibold text-slate-700">Margen Superior</label>
+                                <span id="margin-top-val-single" class="text-xs font-bold text-indigo-600 bg-white border border-slate-200 px-2 py-0.5 rounded shadow-2xs">2.0 mm</span>
+                            </div>
+                            <input type="range" id="setting-margin-top-single" min="0" max="15" step="0.5" value="2" 
+                                oninput="syncMarginInputs('top', this.value)" class="w-full accent-indigo-600 cursor-pointer">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-[11px] font-semibold text-slate-700">Margen Inferior</label>
+                                <span id="margin-bottom-val-single" class="text-xs font-bold text-indigo-600 bg-white border border-slate-200 px-2 py-0.5 rounded shadow-2xs">2.0 mm</span>
+                            </div>
+                            <input type="range" id="setting-margin-bottom-single" min="0" max="15" step="0.5" value="2" 
+                                oninput="syncMarginInputs('bottom', this.value)" class="w-full accent-indigo-600 cursor-pointer">
+                        </div>
+                    </div>
+
+                    <!-- Sliders de Separación de Elementos -->
                     <div class="space-y-2.5">
                         <div>
                             <div class="flex justify-between items-center mb-1">
@@ -419,8 +440,29 @@
                     <div class="pt-3 border-t border-slate-100 space-y-3">
                         <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center space-x-1.5">
                             <i class="fa-solid fa-arrows-up-down text-indigo-600"></i>
-                            <span>Separación Manual de Textos y Código</span>
+                            <span>Márgenes y Separaciones Manuales</span>
                         </h4>
+
+                        <!-- Sliders de Márgenes Superior e Inferior -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-2.5 bg-slate-50/70 rounded-xl border border-slate-200/80">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="text-[11px] font-semibold text-slate-700">Margen Superior</label>
+                                    <span id="margin-top-val-settings" class="text-xs font-bold text-indigo-600 bg-white border border-slate-200 px-2 py-0.5 rounded shadow-2xs">2.0 mm</span>
+                                </div>
+                                <input type="range" id="setting-margin-top-settings" min="0" max="15" step="0.5" value="2" 
+                                    oninput="syncMarginInputs('top', this.value)" class="w-full accent-indigo-600 cursor-pointer">
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="text-[11px] font-semibold text-slate-700">Margen Inferior</label>
+                                    <span id="margin-bottom-val-settings" class="text-xs font-bold text-indigo-600 bg-white border border-slate-200 px-2 py-0.5 rounded shadow-2xs">2.0 mm</span>
+                                </div>
+                                <input type="range" id="setting-margin-bottom-settings" min="0" max="15" step="0.5" value="2" 
+                                    oninput="syncMarginInputs('bottom', this.value)" class="w-full accent-indigo-600 cursor-pointer">
+                            </div>
+                        </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
