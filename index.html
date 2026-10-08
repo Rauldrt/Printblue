@@ -303,6 +303,58 @@
                     </div>
                 </div>
 
+                <!-- Buscador Inteligente y Flexible con Filtros Rápidos -->
+                <div class="mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="batch-search-input" 
+                            placeholder="Buscar producto, SKU, precio o lote (ej: 'remera 4500', 'pantalon jean')..." 
+                            class="w-full pl-9 pr-9 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs placeholder:text-slate-400 text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition shadow-2xs font-medium"
+                            oninput="setBatchSearchQuery(this.value)"
+                        >
+                        <button 
+                            id="batch-search-clear" 
+                            type="button" 
+                            onclick="clearBatchSearch()" 
+                            class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition"
+                            title="Limpiar búsqueda"
+                        >
+                            <i class="fa-solid fa-xmark text-sm"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center space-x-2 shrink-0">
+                        <!-- Chips de Filtrado Rápido -->
+                        <button 
+                            type="button" 
+                            id="chip-filter-all" 
+                            onclick="setBatchFilterOnlySelected(false)" 
+                            class="px-3 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-2xs transition flex items-center space-x-1"
+                        >
+                            <span>Todos</span>
+                            <span id="chip-count-all" class="opacity-80 font-normal">2</span>
+                        </button>
+                        <button 
+                            type="button" 
+                            id="chip-filter-selected" 
+                            onclick="setBatchFilterOnlySelected(true)" 
+                            class="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-600 transition flex items-center space-x-1"
+                        >
+                            <span>Seleccionados</span>
+                            <span id="chip-count-selected" class="opacity-80 font-normal">0</span>
+                        </button>
+
+                        <!-- Badge Contador de Resultados -->
+                        <span id="batch-search-count-badge" class="hidden sm:inline-flex text-[11px] font-semibold text-slate-500 bg-slate-100 px-3 py-2 rounded-xl">
+                            Total: 2
+                        </span>
+                    </div>
+                </div>
+
                 <!-- Barra de Acciones Masivas (Aparece cuando hay elementos seleccionados) -->
                 <div id="batch-selection-toolbar" class="hidden mb-4 p-3 bg-indigo-50 border border-indigo-200 rounded-xl items-center justify-between flex-wrap gap-2 transition-all">
                     <div class="flex items-center space-x-2">

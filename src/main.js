@@ -28,7 +28,11 @@ import {
     printBatchBT,
     toggleSelectAll,
     deleteSelectedItems,
-    setQtyForSelectedItems
+    setQtyForSelectedItems,
+    setBatchSearchQuery,
+    clearBatchSearch,
+    setBatchFilterOnlySelected,
+    removeBatchRowById
 } from './modules/batchPrinting.js';
 import { 
     connectBluetoothPrinter, 
@@ -74,6 +78,10 @@ window.downloadLabelImage = downloadLabelImage;
 window.printSingleDirectBT = printSingleDirectBT;
 window.addBatchRow = addBatchRow;
 window.clearBatch = clearBatch;
+window.setBatchSearchQuery = setBatchSearchQuery;
+window.clearBatchSearch = clearBatchSearch;
+window.setBatchFilterOnlySelected = setBatchFilterOnlySelected;
+window.removeBatchRowById = removeBatchRowById;
 window.printBatch = printBatch;
 window.printBatchBT = printBatchBT;
 window.toggleSelectAll = toggleSelectAll;
