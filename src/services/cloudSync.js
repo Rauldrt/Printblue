@@ -7,6 +7,7 @@ import {
 import { labelConfig, loadSavedSettings } from '../modules/paperSettings.js';
 import { batchItems, setBatchItems } from '../modules/batchPrinting.js';
 import { updatePreview } from '../modules/singleLabel.js';
+import { getSavedLabels, setSavedLabels } from '../modules/savedLabels.js';
 import { showToast } from '../modules/toast.js';
 
 let db = null;
@@ -73,7 +74,12 @@ export async function loadUserDataFromCloud(user) {
                 restoreSingleDraft(data.singleDraft);
             }
 
-            // 5. Restaurar mapeo de Google Sheets
+            // 5. Restaurar etiquetas guardadas para reutilización
+            if (Array.isArray(data.savedLabels)) {
+                setSavedLabels(data.savedLabels, false);
+            }
+
+            // 6. Restaurar mapeo de Google Sheets
             if (data.sheetsMapping) {
                 localStorage.setItem('sheets_column_mapping', JSON.stringify(data.sheetsMapping));
             }
@@ -106,6 +112,7 @@ export async function saveUserDataToCloud(immediate = false) {
             btProtocol: localStorage.getItem('bt_protocol') || 'escpos',
             batchItems: batchItems,
             singleDraft: getSingleDraft(),
+            savedLabels: getSavedLabels(),
             updatedAt: new Date().toISOString()
         };
 

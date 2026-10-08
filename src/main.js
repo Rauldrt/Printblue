@@ -20,6 +20,18 @@ import {
     printSingleDirectBT 
 } from './modules/singleLabel.js';
 import { 
+    saveCurrentSingleLabel, 
+    loadSavedLabel, 
+    clearSingleLabelForm, 
+    deleteSavedLabel, 
+    addSavedLabelToBatch, 
+    printSavedLabelDirectBT, 
+    openSavedLabelsModal, 
+    closeSavedLabelsModal, 
+    filterSavedLabels, 
+    updateSavedLabelsUI 
+} from './modules/savedLabels.js';
+import { 
     batchItems, 
     renderBatchTable, 
     addBatchRow, 
@@ -99,6 +111,15 @@ window.applyMappingAndImport = applyMappingAndImport;
 window.switchSpreadsheetTab = switchSpreadsheetTab;
 window.closeMappingModal = closeMappingModal;
 window.installPWA = installPWA;
+window.saveCurrentSingleLabel = saveCurrentSingleLabel;
+window.loadSavedLabel = loadSavedLabel;
+window.clearSingleLabelForm = clearSingleLabelForm;
+window.deleteSavedLabel = deleteSavedLabel;
+window.addSavedLabelToBatch = addSavedLabelToBatch;
+window.printSavedLabelDirectBT = printSavedLabelDirectBT;
+window.openSavedLabelsModal = openSavedLabelsModal;
+window.closeSavedLabelsModal = closeSavedLabelsModal;
+window.filterSavedLabels = filterSavedLabels;
 
 // PWA Install Prompt
 let deferredInstallPrompt = null;
@@ -234,6 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderBatchTable();
     setupNetworkListeners();
     updateBluetoothUI();
+    updateSavedLabelsUI();
 
     const btProtoSelect = document.getElementById('setting-bt-protocol');
     if (btProtoSelect) {
