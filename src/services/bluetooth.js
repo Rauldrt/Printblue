@@ -5,15 +5,40 @@ import QRCode from 'qrcode';
 
 let bluetoothDevice = null;
 let bluetoothCharacteristic = null;
+let serialPort = null;
 
-// UUIDs habituales para impresoras térmicas BLE y SPP
+// UUIDs de servicios para impresoras térmicas BLE y módulos UART
 const PRINTER_SERVICES = [
-    '000018f0-0000-1000-8000-00805f9b34fb', // Servicio estándar de impresión
-    '49535343-fe7d-4ae5-8fa9-9fafd205e455', // ISSC Transparent (Goojprt, MPT, Go Link)
-    'e7810a71-73ae-499d-8c15-faa9aef0c3f2', // Mini thermal BLE
-    '0000ff00-0000-1000-8000-00805f9b34fb', // Custom thermal
+    // 1. JDY-33 / HM-10 / CC2540 (Go Link GL-33, MPT-II, POS-58 - ¡Módulo de GL-33!)
+    '0000ffe0-0000-1000-8000-00805f9b34fb',
+    '0000ffe1-0000-1000-8000-00805f9b34fb',
+    '0000fff0-0000-1000-8000-00805f9b34fb',
+    '0000fff1-0000-1000-8000-00805f9b34fb',
+    '0000fff2-0000-1000-8000-00805f9b34fb',
+    '0000ff00-0000-1000-8000-00805f9b34fb',
+    '0000ff02-0000-1000-8000-00805f9b34fb',
+
+    // 2. ISSC Transparent UART (Goojprt, MPT, Zjiang, Go Link alternativo)
+    '49535343-fe7d-4ae5-8fa9-9fafd205e455',
+    'e7810a71-73ae-499d-8c15-faa9aef0c3f2',
+
+    // 3. Xprinter, Milestone, Netum, Zhuhai (AE30, AE00, AF30)
+    '0000ae30-0000-1000-8000-00805f9b34fb',
+    '0000ae00-0000-1000-8000-00805f9b34fb',
     '0000af30-0000-1000-8000-00805f9b34fb',
-    '0000fee7-0000-1000-8000-00805f9b34fb'
+
+    // 4. Nordic Semiconductor UART (NUS)
+    '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
+
+    // 5. Servicio estándar de impresión Bluetooth
+    '000018f0-0000-1000-8000-00805f9b34fb',
+
+    // 6. Otros perfiles BLE comunes en impresoras portátiles
+    '0000fee7-0000-1000-8000-00805f9b34fb',
+    '0000fe59-0000-1000-8000-00805f9b34fb',
+    '0000e0ff-0000-1000-8000-00805f9b34fb',
+    '0000fef0-0000-1000-8000-00805f9b34fb',
+    'd973f2e0-b19e-11e2-9e96-0800200c9a66'
 ];
 
 /**
@@ -40,30 +65,57 @@ export async function connectBluetoothPrinter() {
 
         // Buscar servicio y característica con soporte de escritura
         bluetoothCharacteristic = null;
-        for (const serviceUuid of PRINTER_SERVICES) {
-            try {
-                const service = await server.getPrimaryService(serviceUuid);
-                const characteristics = await service.getCharacteristics();
-                for (const char of characteristics) {
-                    if (char.properties.write || char.properties.writeWithoutResponse) {
-                        bluetoothCharacteristic = char;
-                        break;
+
+        // Estrategia 1: Inspeccionar todos los servicios primarios expuestos por el dispositivo
+        try {
+            const services = await server.getPrimaryServices();
+            for (const service of services) {
+                try {
+                    const characteristics = await service.getCharacteristics();
+                    for (const char of characteristics) {
+                        if (char.properties.write || char.properties.writeWithoutResponse) {
+                            bluetoothCharacteristic = char;
+                            console.log('Canal de escritura BLE encontrado:', service.uuid, char.uuid);
+                            break;
+                        }
                     }
+                    if (bluetoothCharacteristic) break;
+                } catch (err) {
+                    // Ignorar si no permite leer características
                 }
-                if (bluetoothCharacteristic) break;
-            } catch (e) {
-                // Siguiente servicio
+            }
+        } catch (e) {
+            console.warn('Exploración global de servicios omitida, probando lista de UUIDs directos...', e);
+        }
+
+        // Estrategia 2: Si no se encontró en la lista general, consultar servicio por servicio
+        if (!bluetoothCharacteristic) {
+            for (const serviceUuid of PRINTER_SERVICES) {
+                try {
+                    const service = await server.getPrimaryService(serviceUuid);
+                    const characteristics = await service.getCharacteristics();
+                    for (const char of characteristics) {
+                        if (char.properties.write || char.properties.writeWithoutResponse) {
+                            bluetoothCharacteristic = char;
+                            console.log('Canal de escritura BLE encontrado por UUID directo:', serviceUuid, char.uuid);
+                            break;
+                        }
+                    }
+                    if (bluetoothCharacteristic) break;
+                } catch (e) {
+                    // Siguiente servicio
+                }
             }
         }
 
         if (!bluetoothCharacteristic) {
-            showToast('Conectado pero no se encontró canal de escritura de impresión.', 'warning');
+            showToast('Conectado pero no se encontró canal de escritura. Prueba también conectar por USB/COM.', 'warning');
         } else {
             showToast(`¡Conectado exitosamente a ${bluetoothDevice.name || 'Impresora Térmica'}!`, 'success');
         }
 
         updateBluetoothUI();
-        return true;
+        return !!bluetoothCharacteristic;
     } catch (error) {
         console.error('Error de conexión Bluetooth:', error);
         showToast('No se pudo conectar a la impresora', 'error');
@@ -72,30 +124,65 @@ export async function connectBluetoothPrinter() {
     }
 }
 
+/**
+ * Conecta a la impresora mediante Web Serial API (ideal para Windows PC con cable USB o Bluetooth SPP/COM)
+ */
+export async function connectSerialPrinter() {
+    if (!navigator.serial) {
+        showToast('Web Serial no está disponible en este navegador. Usa Chrome o Edge en PC.', 'error');
+        return false;
+    }
+
+    try {
+        showToast('Selecciona el puerto de la impresora (USB o Bluetooth COM)...', 'info');
+        serialPort = await navigator.serial.requestPort();
+        await serialPort.open({ baudRate: 9600 });
+
+        showToast('¡Conectado exitosamente por Puerto Serie / USB / Bluetooth COM!', 'success');
+        updateBluetoothUI();
+        return true;
+    } catch (error) {
+        if (error.name !== 'NotFoundError') {
+            console.error('Error al conectar puerto serie:', error);
+            showToast('No se pudo abrir el puerto serie', 'error');
+        }
+        updateBluetoothUI();
+        return false;
+    }
+}
+
 function onDisconnected() {
-    showToast('Impresora Bluetooth desconectada', 'warning');
+    showToast('Impresora desconectada', 'warning');
     bluetoothCharacteristic = null;
     updateBluetoothUI();
 }
 
 export function isBluetoothConnected() {
-    return !!(bluetoothDevice && bluetoothDevice.gatt && bluetoothDevice.gatt.connected && bluetoothCharacteristic);
+    const isBle = !!(bluetoothDevice && bluetoothDevice.gatt && bluetoothDevice.gatt.connected && bluetoothCharacteristic);
+    const isSerial = !!(serialPort && serialPort.writable);
+    return isBle || isSerial;
 }
 
 export function updateBluetoothUI() {
     const isConn = isBluetoothConnected();
+    const isSerial = !!(serialPort && serialPort.writable);
     const statusText = document.getElementById('bt-status-text');
     const connectBtn = document.getElementById('bt-connect-btn');
     const directBtnSingle = document.getElementById('btn-print-direct-bt');
     const directBtnBatch = document.getElementById('btn-print-batch-bt');
 
-    const devName = bluetoothDevice?.name || 'Impresora';
+    let devName = 'Impresora';
+    if (isSerial) {
+        devName = 'Puerto COM / USB';
+    } else if (bluetoothDevice?.name) {
+        devName = bluetoothDevice.name;
+    }
 
     if (statusText) {
         if (isConn) {
-            statusText.innerText = `BT: ${devName.slice(0, 10)}`;
+            statusText.innerText = isSerial ? 'COM: Conectado' : `BT: ${devName.slice(0, 10)}`;
         } else {
-            statusText.innerText = 'Conectar BT';
+            statusText.innerText = 'Conectar BT / PC';
         }
     }
 
@@ -107,14 +194,14 @@ export function updateBluetoothUI() {
         }
     }
 
-    // Mantener visibles los botones directos de impresión Bluetooth
+    // Mantener visibles los botones directos de impresión
     if (directBtnSingle) {
         directBtnSingle.classList.remove('hidden');
         directBtnSingle.classList.add('flex');
         const textSpan = directBtnSingle.querySelector('span');
         if (textSpan) {
             textSpan.innerText = isConn 
-                ? `Imprimir Directo por Bluetooth (${devName})` 
+                ? `Imprimir Directo (${devName})` 
                 : 'Imprimir Directo por Bluetooth (Sin ventanas)';
         }
     }
@@ -125,23 +212,35 @@ export function updateBluetoothUI() {
         const textSpan = directBtnBatch.querySelector('span');
         if (textSpan) {
             textSpan.innerText = isConn 
-                ? `Imprimir Todo por Bluetooth (${devName})` 
+                ? `Imprimir por Bluetooth / Directo (${devName})` 
                 : 'Imprimir Todo por Bluetooth';
         }
     }
 }
 
 /**
- * Envia paquetes binarios en bloques seguros de 100 bytes (MTU BLE estándar)
+ * Envia paquetes binarios a la impresora (por BLE o Web Serial)
  */
 export async function sendRawToPrinter(data) {
-    if (!bluetoothCharacteristic) {
-        throw new Error('No hay impresora Bluetooth conectada');
+    const bytes = typeof data === 'string' ? new TextEncoder().encode(data) : new Uint8Array(data);
+
+    // 1. Envío por Web Serial (USB o Bluetooth COM en Windows)
+    if (serialPort && serialPort.writable) {
+        const writer = serialPort.writable.getWriter();
+        try {
+            await writer.write(bytes);
+        } finally {
+            writer.releaseLock();
+        }
+        return;
     }
 
-    const bytes = typeof data === 'string' ? new TextEncoder().encode(data) : new Uint8Array(data);
-    const CHUNK_SIZE = 100;
+    // 2. Envío por Web Bluetooth BLE
+    if (!bluetoothCharacteristic) {
+        throw new Error('No hay impresora Bluetooth ni Puerto Serie conectado');
+    }
 
+    const CHUNK_SIZE = 100;
     for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
         const chunk = bytes.slice(i, i + CHUNK_SIZE);
         if (bluetoothCharacteristic.properties.writeWithoutResponse) {
@@ -149,7 +248,7 @@ export async function sendRawToPrinter(data) {
         } else {
             await bluetoothCharacteristic.writeValue(chunk);
         }
-        await new Promise(r => setTimeout(r, 25)); // Pequeña pausa para no saturar el buffer
+        await new Promise(r => setTimeout(r, 25)); // Pausa para no saturar buffer
     }
 }
 

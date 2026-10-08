@@ -50,10 +50,14 @@
                     <span class="hidden sm:inline">Instalar App</span>
                 </button>
 
-                <!-- Conexión Bluetooth -->
-                <button id="bt-connect-btn" onclick="connectBluetoothPrinter()" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm px-3 py-2 rounded-lg transition shadow-sm">
+                <!-- Conexión Bluetooth y Serial -->
+                <button id="bt-connect-btn" onclick="connectBluetoothPrinter()" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm px-3 py-2 rounded-lg transition shadow-sm" title="Conectar impresora por Bluetooth">
                     <i class="fa-brands fa-bluetooth-b text-blue-400"></i>
                     <span id="bt-status-text" class="hidden sm:inline">Conectar BT</span>
+                </button>
+                <button onclick="connectSerialPrinter()" class="hidden sm:flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs px-2.5 py-2 rounded-lg transition shadow-sm" title="Conectar por cable USB o puerto COM serie (PC Windows)">
+                    <i class="fa-solid fa-plug text-amber-400"></i>
+                    <span>USB / COM</span>
                 </button>
                 
                 <button onclick="openHelpModal()" class="text-slate-400 hover:text-white p-2 rounded-lg text-sm transition" title="Ayuda y Configuración">
@@ -635,6 +639,27 @@
                         <option value="tspl">TSPL Nativo (TSC, Xprinter, Zebra)</option>
                     </select>
                     <p class="text-[10px] text-slate-400">ESC/POS Gráfico envía la etiqueta píxel a píxel directamente a la impresora por Bluetooth sin intermediarios ni ventanas de Windows.</p>
+                </div>
+
+                <!-- Opciones de Conexión Directa en PC Windows -->
+                <div class="pt-3 border-t border-slate-100 space-y-2">
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-1.5">
+                        <i class="fa-solid fa-desktop text-indigo-600"></i>
+                        <span>Conexión Directa en PC (Bluetooth / USB / COM)</span>
+                    </h3>
+                    <div class="flex flex-wrap gap-2 pt-1">
+                        <button type="button" onclick="connectBluetoothPrinter()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center space-x-1.5 shadow-2xs">
+                            <i class="fa-brands fa-bluetooth-b text-indigo-600"></i>
+                            <span>Bluetooth BLE Directo</span>
+                        </button>
+                        <button type="button" onclick="connectSerialPrinter()" class="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center space-x-1.5 shadow-2xs">
+                            <i class="fa-solid fa-plug text-amber-600"></i>
+                            <span>Puerto Serie / Bluetooth COM / USB (PC)</span>
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-slate-400">
+                        💡 <strong>Para Windows PC:</strong> Puedes conectar inalámbricamente por Bluetooth BLE, o seleccionar el puerto COM virtual asignado a la GL-33 al emparejarla en Windows, o conectar un cable USB directo.
+                    </p>
                 </div>
 
                 <!-- Sección de Estado de la PWA -->

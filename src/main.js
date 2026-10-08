@@ -36,6 +36,7 @@ import {
 } from './modules/batchPrinting.js';
 import { 
     connectBluetoothPrinter, 
+    connectSerialPrinter,
     isBluetoothConnected, 
     updateBluetoothUI,
     sendRawToPrinter, 
@@ -88,6 +89,7 @@ window.toggleSelectAll = toggleSelectAll;
 window.deleteSelectedItems = deleteSelectedItems;
 window.setQtyForSelectedItems = setQtyForSelectedItems;
 window.connectBluetoothPrinter = connectBluetoothPrinter;
+window.connectSerialPrinter = connectSerialPrinter;
 window.openHelpModal = () => document.getElementById('help-modal')?.classList.remove('hidden');
 window.closeHelpModal = () => document.getElementById('help-modal')?.classList.add('hidden');
 window.openDriveModal = openDriveModal;
