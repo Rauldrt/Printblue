@@ -275,3 +275,146 @@ body {
     animation: laserScan 2.2s ease-in-out infinite;
     z-index: 10;
 }
+
+/* ===================================================
+   MATERIAL DESIGN 3 - SISTEMA COMPLETO DE ESTILOS & MOVIMIENTO
+   =================================================== */
+
+:root {
+    --m3-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+    --m3-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+    --m3-shape-corner-xl: 28px;
+    --m3-shape-corner-lg: 20px;
+    --m3-shape-corner-md: 14px;
+    --m3-shape-corner-sm: 10px;
+    --m3-shape-full: 9999px;
+}
+
+/* Micro-interacciones reactivas M3 para todos los botones */
+button, .m3-clickable {
+    transition: all 220ms var(--m3-easing-emphasized);
+}
+
+button:active:not(:disabled), .m3-clickable:active {
+    transform: scale(0.965);
+}
+
+/* Tarjetas M3 (Surface Container con elevación suave) */
+.m3-card {
+    background-color: #ffffff;
+    border-radius: var(--m3-shape-corner-lg);
+    border: 1px solid rgba(226, 232, 240, 0.85);
+    box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.03);
+    transition: transform 300ms var(--m3-easing-emphasized), box-shadow 300ms var(--m3-easing-emphasized), border-color 200ms ease;
+}
+
+.m3-card:hover {
+    box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.07), 0 4px 8px -4px rgba(15, 23, 42, 0.03);
+}
+
+/* Inputs y Campos de Texto M3 */
+.m3-input {
+    border-radius: var(--m3-shape-corner-md);
+    border: 1px solid #cbd5e1;
+    background-color: #f8fafc;
+    transition: border-color 200ms ease, background-color 200ms ease, box-shadow 200ms ease;
+}
+
+.m3-input:focus {
+    background-color: #ffffff;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.16);
+    outline: none;
+}
+
+/* Botones M3 */
+.m3-btn-filled {
+    border-radius: var(--m3-shape-corner-md);
+    background-color: #4f46e5;
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 2px 4px -1px rgba(79, 70, 229, 0.25);
+    transition: background-color 200ms ease, transform 150ms var(--m3-easing-emphasized), box-shadow 200ms ease;
+}
+.m3-btn-filled:hover {
+    background-color: #4338ca;
+    box-shadow: 0 4px 12px -2px rgba(79, 70, 229, 0.35);
+}
+
+.m3-btn-tonal {
+    border-radius: var(--m3-shape-corner-md);
+    background-color: #eef2ff;
+    color: #4338ca;
+    border: 1px solid #e0e7ff;
+    font-weight: 600;
+    transition: background-color 200ms ease, transform 150ms var(--m3-easing-emphasized), border-color 200ms ease;
+}
+.m3-btn-tonal:hover {
+    background-color: #e0e7ff;
+    color: #3730a3;
+    border-color: #c7d2fe;
+}
+
+.m3-btn-outlined {
+    border-radius: var(--m3-shape-corner-md);
+    border: 1px solid #cbd5e1;
+    background-color: #ffffff;
+    color: #334155;
+    font-weight: 600;
+    transition: background-color 200ms ease, border-color 200ms ease, transform 150ms var(--m3-easing-emphasized);
+}
+.m3-btn-outlined:hover {
+    background-color: #f8fafc;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+/* Cápsula de Pestañas M3 */
+.m3-tabs-bar {
+    background-color: rgba(226, 232, 240, 0.7);
+    padding: 4px;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.m3-tab-pill {
+    padding: 7px 16px;
+    border-radius: 9999px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 250ms var(--m3-easing-emphasized);
+}
+.m3-tab-pill:hover {
+    color: #1e293b;
+}
+.m3-tab-pill.active {
+    background-color: #ffffff;
+    color: #4338ca;
+    box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.12), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
+}
+
+/* Animación de apertura suave para diálogos / modales M3 */
+@keyframes m3DialogEnter {
+    from {
+        opacity: 0;
+        transform: scale(0.93) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.m3-dialog-content {
+    border-radius: 28px !important;
+    animation: m3DialogEnter 280ms var(--m3-easing-emphasized) forwards;
+    box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.28), 0 0 0 1px rgba(226, 232, 240, 0.8) !important;
+}

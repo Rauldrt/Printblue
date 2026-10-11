@@ -185,8 +185,7 @@ export function switchTab(tabName) {
 
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
     document.querySelectorAll('.tab-btn').forEach(el => {
-        el.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
-        el.classList.add('border-transparent', 'text-slate-500');
+        el.classList.remove('active');
     });
 
     const contentEl = document.getElementById(`tab-${tabName}`);
@@ -194,8 +193,7 @@ export function switchTab(tabName) {
 
     if (contentEl && btnEl) {
         contentEl.classList.remove('hidden');
-        btnEl.classList.add('active', 'border-indigo-600', 'text-indigo-600');
-        btnEl.classList.remove('border-transparent', 'text-slate-500');
+        btnEl.classList.add('active');
         history.replaceState(null, null, `#${tabName}`);
     }
 

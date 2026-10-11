@@ -314,14 +314,14 @@ export function renderSavedLabelsModal() {
         const priceDisplay = item.price ? `${item.currency || '$'} ${item.price}` : '';
 
         return `
-            <div class="group relative bg-white border ${isCurrent ? 'border-indigo-500 ring-2 ring-indigo-100' : 'border-slate-200'} rounded-xl p-3.5 sm:p-4 hover:border-indigo-400 hover:shadow-sm transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="group relative bg-white border ${isCurrent ? 'border-indigo-500 ring-2 ring-indigo-100/80 bg-indigo-50/20' : 'border-slate-200/90'} rounded-2xl p-3.5 sm:p-4 hover:border-indigo-300 hover:shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center space-x-2 mb-1 flex-wrap gap-y-1">
                         <h4 class="text-sm font-bold text-slate-900 truncate max-w-xs" title="${escapeHtml(item.title || 'Sin Nombre')}">
                             ${escapeHtml(item.title || 'Sin Nombre')}
                         </h4>
-                        ${isCurrent ? '<span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full">En uso</span>' : ''}
-                        <span class="bg-slate-100 text-slate-600 text-[10px] font-mono font-medium px-2 py-0.5 rounded border border-slate-200">
+                        ${isCurrent ? '<span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full">En uso</span>' : ''}
+                        <span class="bg-slate-100 text-slate-600 text-[10px] font-mono font-medium px-2 py-0.5 rounded-full border border-slate-200">
                             ${escapeHtml(item.symbology || 'CODE128')}
                         </span>
                     </div>
@@ -332,7 +332,7 @@ export function renderSavedLabelsModal() {
                             <strong>${escapeHtml(item.code)}</strong>
                         </span>
                         ${priceDisplay ? `
-                            <span class="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 text-[11px]">
+                            <span class="font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100 text-[11px]">
                                 ${escapeHtml(priceDisplay)}
                             </span>
                         ` : ''}
@@ -348,22 +348,22 @@ export function renderSavedLabelsModal() {
                 </div>
 
                 <div class="flex items-center space-x-1.5 self-end sm:self-center">
-                    <button type="button" onclick="loadSavedLabel('${item.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-3 py-1.5 rounded-lg shadow-sm transition flex items-center space-x-1.5" title="Cargar esta etiqueta en el diseñador">
+                    <button type="button" onclick="loadSavedLabel('${item.id}')" class="m3-btn-filled text-xs px-3.5 py-1.5 rounded-full shadow-2xs active:scale-95 flex items-center space-x-1.5" title="Cargar esta etiqueta en el diseñador">
                         <i class="fa-solid fa-arrow-right-to-bracket text-[11px]"></i>
                         <span>Cargar</span>
                     </button>
                     
-                    <button type="button" onclick="printSavedLabelDirectBT('${item.id}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-semibold text-xs px-2.5 py-1.5 rounded-lg transition flex items-center space-x-1" title="Imprimir directo por Bluetooth">
+                    <button type="button" onclick="printSavedLabelDirectBT('${item.id}')" class="m3-btn-tonal text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border-emerald-200 text-xs px-3 py-1.5 rounded-full active:scale-95 flex items-center space-x-1" title="Imprimir directo por Bluetooth">
                         <i class="fa-solid fa-print text-[11px]"></i>
                         <span class="hidden sm:inline">Imprimir</span>
                     </button>
 
-                    <button type="button" onclick="addSavedLabelToBatch('${item.id}')" class="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 font-medium text-xs px-2.5 py-1.5 rounded-lg transition" title="Agregar al Lote de Impresión">
+                    <button type="button" onclick="addSavedLabelToBatch('${item.id}')" class="m3-btn-outlined text-xs px-3 py-1.5 rounded-full active:scale-95 flex items-center space-x-1" title="Agregar al Lote de Impresión">
                         <i class="fa-solid fa-plus text-[11px]"></i>
                         <span class="hidden sm:inline">Lote</span>
                     </button>
 
-                    <button type="button" onclick="deleteSavedLabel('${item.id}')" class="text-slate-400 hover:text-rose-600 hover:bg-rose-50 p-1.5 rounded-lg transition" title="Eliminar etiqueta">
+                    <button type="button" onclick="deleteSavedLabel('${item.id}')" class="w-8 h-8 rounded-full text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition active:scale-95" title="Eliminar etiqueta">
                         <i class="fa-regular fa-trash-can text-sm"></i>
                     </button>
                 </div>
