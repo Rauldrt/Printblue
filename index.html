@@ -857,26 +857,26 @@
         <div class="m3-fab-card-content">
             
             <!-- Cabecera de la Card M3 -->
-            <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200/80 bg-white select-none">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg border border-indigo-100 shadow-2xs">
+            <div class="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-slate-200/80 bg-white select-none shrink-0">
+                <div class="flex items-center space-x-2.5 sm:space-x-3">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-base sm:text-lg border border-indigo-100 shadow-2xs shrink-0">
                         <i class="fa-solid fa-sliders"></i>
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <div class="flex items-center space-x-2">
-                            <h3 class="font-bold text-slate-900 text-sm sm:text-base leading-tight">Configuración y Ajustes</h3>
-                            <span id="fab-header-badge" class="bg-indigo-50 text-indigo-700 font-bold px-2 py-0.5 rounded-full text-[10px] border border-indigo-200">55x44 mm</span>
+                            <h3 class="font-bold text-slate-900 text-xs sm:text-base leading-tight truncate">Configuración y Ajustes</h3>
+                            <span id="fab-header-badge" class="bg-indigo-50 text-indigo-700 font-bold px-2 py-0.5 rounded-full text-[10px] border border-indigo-200 shrink-0">55x44 mm</span>
                         </div>
-                        <p class="text-[11px] text-slate-500">Parámetros del rollo, anti-drift, código, márgenes y Bluetooth</p>
+                        <p class="text-[10px] sm:text-[11px] text-slate-500 truncate">Parámetros del rollo, anti-drift, código y Bluetooth</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeSettingsFAB()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition" title="Cerrar ajustes">
+                <button type="button" onclick="closeSettingsFAB()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition shrink-0 ml-1" title="Cerrar ajustes">
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
 
             <!-- Contenedor con Scroll de las 5 Secciones Acordeón -->
-            <div class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 bg-slate-50/70">
+            <div class="flex-1 overflow-y-auto p-3 sm:p-5 space-y-3 bg-slate-50/70">
                 
                 <!-- SECCIÓN 1: Configuración del Rollo de Etiquetas -->
                 <div class="m3-accordion-item is-open" id="accordion-item-0">
@@ -1157,7 +1157,7 @@
             </div>
 
             <!-- Footer de la Card M3 -->
-            <div class="px-5 py-3.5 border-t border-slate-200/80 bg-white flex items-center justify-between">
+            <div class="px-4 sm:px-5 py-3 sm:py-3.5 border-t border-slate-200/80 bg-white flex items-center justify-between shrink-0">
                 <span class="text-[11px] text-slate-500 flex items-center space-x-1.5">
                     <i class="fa-solid fa-circle-check text-emerald-500 text-xs"></i>
                     <span>Ajustes reactivos en vivo</span>
