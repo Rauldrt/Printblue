@@ -10,7 +10,11 @@ import {
     syncGapInput,
     syncFeedOffsetInput,
     setFeedMode,
-    setVerticalAlign
+    setVerticalAlign,
+    openSettingsFAB,
+    closeSettingsFAB,
+    toggleSettingsFAB,
+    toggleAccordion
 } from './modules/paperSettings.js';
 import { 
     updatePreview, 
@@ -120,6 +124,10 @@ window.printSavedLabelDirectBT = printSavedLabelDirectBT;
 window.openSavedLabelsModal = openSavedLabelsModal;
 window.closeSavedLabelsModal = closeSavedLabelsModal;
 window.filterSavedLabels = filterSavedLabels;
+window.openSettingsFAB = openSettingsFAB;
+window.closeSettingsFAB = closeSettingsFAB;
+window.toggleSettingsFAB = toggleSettingsFAB;
+window.toggleAccordion = toggleAccordion;
 
 // PWA Install Prompt
 let deferredInstallPrompt = null;
@@ -155,6 +163,11 @@ async function installPWA() {
 
 // Navegación de pestañas
 export function switchTab(tabName) {
+    if (tabName === 'settings') {
+        openSettingsFAB();
+        return;
+    }
+
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
     document.querySelectorAll('.tab-btn').forEach(el => {
         el.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
@@ -173,6 +186,12 @@ export function switchTab(tabName) {
 
     if (tabName === 'single') updatePreview();
 }
+
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeSettingsFAB();
+    }
+});
 
 // Modal de Google Drive
 async function openDriveModal() {
@@ -291,11 +310,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Listeners para sliders de dimensiones de código
-    ['setting-barcode-height', 'setting-barcode-width'].forEach(id => {
+    // Listeners para dimensiones de etiqueta y código
+    ['setting-barcode-height', 'setting-barcode-width', 'setting-width', 'setting-height', 'setting-padding', 'setting-fontsize'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.addEventListener('input', () => saveSettings(updatePreview));
+            el.addEventListener('change', () => saveSettings(updatePreview));
         }
     });
 

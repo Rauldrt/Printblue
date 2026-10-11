@@ -18,6 +18,9 @@ export let labelConfig = {
     verticalAlign: 'center' // 'center' | 'space-between' | 'flex-start'
 };
 
+/**
+ * Carga configuraciones guardadas de localStorage y las aplica a la interfaz
+ */
 export function loadSavedSettings(onUpdateCallback) {
     const saved = localStorage.getItem('printlabel_config');
     if (saved) {
@@ -47,15 +50,14 @@ export function loadSavedSettings(onUpdateCallback) {
     if (bHeightVal) bHeightVal.innerText = `${labelConfig.barcodeHeight}%`;
     if (bWidthVal) bWidthVal.innerText = `${labelConfig.barcodeWidth}x`;
 
-    // Cargar y sincronizar sliders de márgenes superior e inferior
-    ['single', 'settings'].forEach(ctx => {
-        const topInp = document.getElementById(`setting-margin-top-${ctx}`);
-        const bottomInp = document.getElementById(`setting-margin-bottom-${ctx}`);
-        const topBadge = document.getElementById(`margin-top-val-${ctx}`);
-        const bottomBadge = document.getElementById(`margin-bottom-val-${ctx}`);
-
-        const topVal = labelConfig.paddingTopMm ?? labelConfig.paddingMm ?? 2.0;
-        const bottomVal = labelConfig.paddingBottomMm ?? labelConfig.paddingMm ?? 2.0;
+    // Sliders de márgenes superior e inferior
+    const topVal = labelConfig.paddingTopMm ?? labelConfig.paddingMm ?? 2.0;
+    const bottomVal = labelConfig.paddingBottomMm ?? labelConfig.paddingMm ?? 2.0;
+    ['fab', 'settings', 'single', ''].forEach(ctx => {
+        const topInp = document.getElementById(ctx ? `setting-margin-top-${ctx}` : 'setting-margin-top');
+        const bottomInp = document.getElementById(ctx ? `setting-margin-bottom-${ctx}` : 'setting-margin-bottom');
+        const topBadge = document.getElementById(ctx ? `margin-top-val-${ctx}` : 'margin-top-val');
+        const bottomBadge = document.getElementById(ctx ? `margin-bottom-val-${ctx}` : 'margin-bottom-val');
 
         if (topInp) topInp.value = topVal;
         if (bottomInp) bottomInp.value = bottomVal;
@@ -63,20 +65,22 @@ export function loadSavedSettings(onUpdateCallback) {
         if (bottomBadge) bottomBadge.innerText = `${bottomVal.toFixed(1)} mm`;
     });
 
-    // Cargar y sincronizar sliders de espaciado
-    ['single', 'settings'].forEach(ctx => {
-        const titleInp = document.getElementById(`setting-spacing-title-${ctx}`);
-        const footerInp = document.getElementById(`setting-spacing-footer-${ctx}`);
-        const titleBadge = document.getElementById(`spacing-title-val-${ctx}`);
-        const footerBadge = document.getElementById(`spacing-footer-val-${ctx}`);
+    // Sliders de separación
+    const titleVal = labelConfig.spacingTitle ?? 2.0;
+    const footerVal = labelConfig.spacingFooter ?? 2.0;
+    ['fab', 'settings', 'single', ''].forEach(ctx => {
+        const titleInp = document.getElementById(ctx ? `setting-spacing-title-${ctx}` : 'setting-spacing-title');
+        const footerInp = document.getElementById(ctx ? `setting-spacing-footer-${ctx}` : 'setting-spacing-footer');
+        const titleBadge = document.getElementById(ctx ? `spacing-title-val-${ctx}` : 'spacing-title-val');
+        const footerBadge = document.getElementById(ctx ? `spacing-footer-val-${ctx}` : 'spacing-footer-val');
 
-        if (titleInp) titleInp.value = labelConfig.spacingTitle ?? 2.0;
-        if (footerInp) footerInp.value = labelConfig.spacingFooter ?? 2.0;
-        if (titleBadge) titleBadge.innerText = `${(labelConfig.spacingTitle ?? 2.0).toFixed(1)} mm`;
-        if (footerBadge) footerBadge.innerText = `${(labelConfig.spacingFooter ?? 2.0).toFixed(1)} mm`;
+        if (titleInp) titleInp.value = titleVal;
+        if (footerInp) footerInp.value = footerVal;
+        if (titleBadge) titleBadge.innerText = `${titleVal.toFixed(1)} mm`;
+        if (footerBadge) footerBadge.innerText = `${footerVal.toFixed(1)} mm`;
     });
 
-    // Cargar y sincronizar configuración de calibración de rollo / anti-desplazamiento
+    // Calibración de avance y gap
     const gapInput = document.getElementById('setting-gap');
     const gapBadge = document.getElementById('gap-val');
     const offsetInput = document.getElementById('setting-feed-offset');
@@ -93,11 +97,21 @@ export function loadSavedSettings(onUpdateCallback) {
     if (offsetBadge) offsetBadge.innerText = `${offsetVal >= 0 ? '+' : ''}${offsetVal.toFixed(1)} mm`;
     if (feedModeSelect) feedModeSelect.value = feedModeVal;
 
+    // Protocolo Bluetooth
+    const protoSelect = document.getElementById('setting-bt-protocol');
+    if (protoSelect) {
+        protoSelect.value = localStorage.getItem('bt_protocol') || 'escpos';
+    }
+
     updateVerticalAlignUI();
+    updateSettingsSummaries();
 
     if (typeof onUpdateCallback === 'function') onUpdateCallback();
 }
 
+/**
+ * Guarda los valores actuales de los inputs
+ */
 export function saveSettings(onUpdateCallback) {
     labelConfig.widthMm = parseFloat(document.getElementById('setting-width')?.value) || 55;
     labelConfig.heightMm = parseFloat(document.getElementById('setting-height')?.value) || 44;
@@ -114,8 +128,8 @@ export function saveSettings(onUpdateCallback) {
     if (offsetInput) labelConfig.feedOffsetMm = parseFloat(offsetInput.value) || 0;
     if (feedModeSelect) labelConfig.feedMode = feedModeSelect.value;
 
-    const topInp = document.getElementById('setting-margin-top-settings') || document.getElementById('setting-margin-top-single');
-    const bottomInp = document.getElementById('setting-margin-bottom-settings') || document.getElementById('setting-margin-bottom-single');
+    const topInp = document.getElementById('setting-margin-top') || document.getElementById('setting-margin-top-fab') || document.getElementById('setting-margin-top-settings');
+    const bottomInp = document.getElementById('setting-margin-bottom') || document.getElementById('setting-margin-bottom-fab') || document.getElementById('setting-margin-bottom-settings');
     if (topInp) labelConfig.paddingTopMm = parseFloat(topInp.value) || 2.0;
     if (bottomInp) labelConfig.paddingBottomMm = parseFloat(bottomInp.value) || 2.0;
 
@@ -125,56 +139,66 @@ export function saveSettings(onUpdateCallback) {
     if (bWidthVal) bWidthVal.innerText = `${labelConfig.barcodeWidth}x`;
 
     localStorage.setItem('printlabel_config', JSON.stringify(labelConfig));
+    updateSettingsSummaries();
     triggerCloudSave();
+
     if (typeof onUpdateCallback === 'function') onUpdateCallback();
 }
 
+/**
+ * Sincroniza márgenes superior / inferior
+ */
 export function syncMarginInputs(type, val, onUpdateCallback) {
     const num = parseFloat(val) || 0;
     if (type === 'top') {
         labelConfig.paddingTopMm = num;
-        ['single', 'settings'].forEach(ctx => {
-            const el = document.getElementById(`setting-margin-top-${ctx}`);
-            const badge = document.getElementById(`margin-top-val-${ctx}`);
+        ['fab', 'settings', 'single', ''].forEach(ctx => {
+            const el = document.getElementById(ctx ? `setting-margin-top-${ctx}` : 'setting-margin-top');
+            const badge = document.getElementById(ctx ? `margin-top-val-${ctx}` : 'margin-top-val');
             if (el) el.value = num;
             if (badge) badge.innerText = `${num.toFixed(1)} mm`;
         });
     } else if (type === 'bottom') {
         labelConfig.paddingBottomMm = num;
-        ['single', 'settings'].forEach(ctx => {
-            const el = document.getElementById(`setting-margin-bottom-${ctx}`);
-            const badge = document.getElementById(`margin-bottom-val-${ctx}`);
+        ['fab', 'settings', 'single', ''].forEach(ctx => {
+            const el = document.getElementById(ctx ? `setting-margin-bottom-${ctx}` : 'setting-margin-bottom');
+            const badge = document.getElementById(ctx ? `margin-bottom-val-${ctx}` : 'margin-bottom-val');
             if (el) el.value = num;
             if (badge) badge.innerText = `${num.toFixed(1)} mm`;
         });
     }
 
     localStorage.setItem('printlabel_config', JSON.stringify(labelConfig));
+    updateSettingsSummaries();
     triggerCloudSave();
     if (typeof onUpdateCallback === 'function') onUpdateCallback();
 }
 
+/**
+ * Sincroniza separaciones internas
+ */
 export function syncSpacingInputs(type, val, onUpdateCallback) {
     const num = parseFloat(val) || 0;
     if (type === 'title') {
         labelConfig.spacingTitle = num;
-        ['single', 'settings'].forEach(ctx => {
-            const el = document.getElementById(`setting-spacing-title-${ctx}`);
-            const badge = document.getElementById(`spacing-title-val-${ctx}`);
+        ['fab', 'settings', 'single', ''].forEach(ctx => {
+            const el = document.getElementById(ctx ? `setting-spacing-title-${ctx}` : 'setting-spacing-title');
+            const badge = document.getElementById(ctx ? `spacing-title-val-${ctx}` : 'spacing-title-val');
             if (el) el.value = num;
             if (badge) badge.innerText = `${num.toFixed(1)} mm`;
         });
     } else if (type === 'footer') {
         labelConfig.spacingFooter = num;
-        ['single', 'settings'].forEach(ctx => {
-            const el = document.getElementById(`setting-spacing-footer-${ctx}`);
-            const badge = document.getElementById(`spacing-footer-val-${ctx}`);
+        ['fab', 'settings', 'single', ''].forEach(ctx => {
+            const el = document.getElementById(ctx ? `setting-spacing-footer-${ctx}` : 'setting-spacing-footer');
+            const badge = document.getElementById(ctx ? `spacing-footer-val-${ctx}` : 'spacing-footer-val');
             if (el) el.value = num;
             if (badge) badge.innerText = `${num.toFixed(1)} mm`;
         });
     }
 
     localStorage.setItem('printlabel_config', JSON.stringify(labelConfig));
+    updateSettingsSummaries();
     triggerCloudSave();
     if (typeof onUpdateCallback === 'function') onUpdateCallback();
 }
@@ -188,6 +212,7 @@ export function syncGapInput(val, onUpdateCallback) {
     if (gapBadge) gapBadge.innerText = `${num.toFixed(1)} mm`;
 
     localStorage.setItem('printlabel_config', JSON.stringify(labelConfig));
+    updateSettingsSummaries();
     triggerCloudSave();
     if (typeof onUpdateCallback === 'function') onUpdateCallback();
 }
@@ -201,6 +226,7 @@ export function syncFeedOffsetInput(val, onUpdateCallback) {
     if (offsetBadge) offsetBadge.innerText = `${num >= 0 ? '+' : ''}${num.toFixed(1)} mm`;
 
     localStorage.setItem('printlabel_config', JSON.stringify(labelConfig));
+    updateSettingsSummaries();
     triggerCloudSave();
     if (typeof onUpdateCallback === 'function') onUpdateCallback();
 }
@@ -211,6 +237,7 @@ export function setFeedMode(mode, onUpdateCallback) {
     if (feedModeSelect) feedModeSelect.value = mode;
 
     localStorage.setItem('printlabel_config', JSON.stringify(labelConfig));
+    updateSettingsSummaries();
     triggerCloudSave();
     if (typeof onUpdateCallback === 'function') onUpdateCallback();
 }
@@ -219,6 +246,7 @@ export function setVerticalAlign(align, onUpdateCallback) {
     labelConfig.verticalAlign = align;
     updateVerticalAlignUI();
     localStorage.setItem('printlabel_config', JSON.stringify(labelConfig));
+    updateSettingsSummaries();
     triggerCloudSave();
     if (typeof onUpdateCallback === 'function') onUpdateCallback();
 }
@@ -228,8 +256,9 @@ export function updateVerticalAlignUI() {
     const alignTypes = ['center', 'space-between', 'flex-start'];
     
     alignTypes.forEach(type => {
-        ['single', 'settings'].forEach(context => {
-            const btn = document.getElementById(`valign-${type}-${context}-btn`);
+        ['fab', 'single', 'settings', ''].forEach(context => {
+            const btnId = context ? `valign-${type}-${context}-btn` : `valign-${type}-btn`;
+            const btn = document.getElementById(btnId);
             if (btn) {
                 if (type === align) {
                     btn.className = 'valign-btn py-1.5 px-3 rounded-lg border text-xs font-bold bg-indigo-600 text-white border-indigo-600 shadow-sm transition';
@@ -247,6 +276,89 @@ export function applyPreset(w, h, onUpdateCallback) {
     if (wInput) wInput.value = w;
     if (hInput) hInput.value = h;
 
+    // Actualizar estilo activo en los botones de presets
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.classList.remove('border-indigo-500', 'bg-indigo-50/70', 'ring-1', 'ring-indigo-300');
+    });
+
     saveSettings(onUpdateCallback);
-    showToast(`Formato cambiado a ${w}x${h} mm`, 'success');
+    showToast(`Formato de papel establecido a ${w}x${h} mm`, 'success');
+}
+
+/**
+ * Actualiza los badges de resumen dentro del FAB expandido
+ */
+export function updateSettingsSummaries() {
+    const rollBadge = document.getElementById('fab-header-badge');
+    const rollSummary = document.getElementById('accordion-summary-roll');
+    const codeSummary = document.getElementById('accordion-summary-code');
+    const marginsSummary = document.getElementById('accordion-summary-margins');
+    const btSummary = document.getElementById('accordion-summary-bt');
+
+    const rollText = `${labelConfig.widthMm}x${labelConfig.heightMm} mm`;
+    if (rollBadge) rollBadge.innerText = rollText;
+    if (rollSummary) rollSummary.innerText = rollText;
+
+    if (codeSummary) {
+        codeSummary.innerText = `${labelConfig.barcodeHeight}% | ${labelConfig.barcodeWidth}x`;
+    }
+
+    if (marginsSummary) {
+        const top = (labelConfig.paddingTopMm ?? 2.0).toFixed(1);
+        const bot = (labelConfig.paddingBottomMm ?? 2.0).toFixed(1);
+        marginsSummary.innerText = `Sup: ${top} | Inf: ${bot} mm`;
+    }
+
+    if (btSummary) {
+        const proto = localStorage.getItem('bt_protocol') || 'escpos';
+        btSummary.innerText = proto === 'tspl' ? 'TSPL' : 'ESC/POS';
+    }
+}
+
+/* ==========================================
+   CONTROLADORES DEL FAB MATERIAL DESIGN 3
+   ========================================== */
+
+export function openSettingsFAB() {
+    const container = document.getElementById('m3-settings-fab');
+    const backdrop = document.getElementById('m3-fab-backdrop');
+    if (container) {
+        container.classList.remove('is-collapsed');
+        container.classList.add('is-expanded');
+    }
+    if (backdrop) backdrop.classList.add('is-active');
+    updateSettingsSummaries();
+}
+
+export function closeSettingsFAB() {
+    const container = document.getElementById('m3-settings-fab');
+    const backdrop = document.getElementById('m3-fab-backdrop');
+    if (container) {
+        container.classList.remove('is-expanded');
+        container.classList.add('is-collapsed');
+    }
+    if (backdrop) backdrop.classList.remove('is-active');
+}
+
+export function toggleSettingsFAB() {
+    const container = document.getElementById('m3-settings-fab');
+    if (container?.classList.contains('is-expanded')) {
+        closeSettingsFAB();
+    } else {
+        openSettingsFAB();
+    }
+}
+
+/**
+ * Controla la apertura/cierre de cada sección del acordeón
+ */
+export function toggleAccordion(index) {
+    const items = document.querySelectorAll('.m3-accordion-item');
+    items.forEach((item, idx) => {
+        if (idx === index) {
+            item.classList.toggle('is-open');
+        } else {
+            item.classList.remove('is-open');
+        }
+    });
 }
