@@ -41,6 +41,7 @@ import {
     handleAiImageUpload, 
     confirmAndApplyAiData, 
     saveAiSettings, 
+    refreshAiModels,
     setupClipboardPasteListener 
 } from './modules/aiScanModal.js';
 import { 
@@ -141,6 +142,7 @@ window.closeAiScanModal = closeAiScanModal;
 window.handleAiImageUpload = handleAiImageUpload;
 window.confirmAndApplyAiData = confirmAndApplyAiData;
 window.saveAiSettings = saveAiSettings;
+window.refreshAiModels = refreshAiModels;
 
 // PWA Install Prompt
 let deferredInstallPrompt = null;

@@ -3,14 +3,12 @@ import { updatePreview } from '../modules/singleLabel.js';
 import { triggerCloudSave } from './cloudSync.js';
 
 export const AVAILABLE_MODELS = [
-    { id: 'gemini-3.0-flash', name: 'Gemini 3.0 Flash (Última generación / Recomendado)', isDefault: true },
-    { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash' },
-    { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash' },
-    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash (Compatibilidad clásica)' },
-    { id: 'custom', name: 'Personalizado (Escribir ID futuro...)' }
+    { id: 'gemini-3.0-flash', name: 'Gemini 3.0 Flash (Recomendado / Ultra Rápido)', isDefault: true },
+    { id: 'gemini-3.0-pro', name: 'Gemini 3.0 Pro (Máxima Precisión Visual)' },
+    { id: 'custom', name: 'Personalizado (Escribir ID del modelo...)' }
 ];
 
-export const FALLBACK_MODELS = ['gemini-3.0-flash', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+export const FALLBACK_MODELS = ['gemini-3.0-flash', 'gemini-3.0-pro'];
 
 /**
  * Obtiene la API Key configurada
@@ -45,6 +43,59 @@ export function getActiveModelId() {
 export function setActiveModelId(modelId) {
     if (modelId) {
         localStorage.setItem('gemini_model_id', modelId.trim());
+    }
+}
+
+/**
+ * Obtiene la lista dinámica de modelos para fallback evitando modelos obsoletos
+ */
+export function getDynamicFallbackModels() {
+    try {
+        const cached = localStorage.getItem('gemini_discovered_models');
+        if (cached) {
+            const list = JSON.parse(cached);
+            if (Array.isArray(list) && list.length > 0) {
+                return list;
+            }
+        }
+    } catch (_) {}
+    return FALLBACK_MODELS;
+}
+
+/**
+ * Consulta a Google Gemini los modelos activos disponibles para la API Key
+ */
+export async function fetchLiveGeminiModels(apiKey = null) {
+    const key = apiKey || getGeminiApiKey();
+    if (!key) return [];
+    try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+        if (!res.ok) return [];
+        const data = await res.json();
+        if (!data.models || !Array.isArray(data.models)) return [];
+
+        const activeModels = data.models
+            .filter(m => {
+                const methods = m.supportedGenerationMethods || [];
+                return methods.includes('generateContent');
+            })
+            .map(m => {
+                const cleanId = m.name.replace(/^models\//, '');
+                return {
+                    id: cleanId,
+                    name: m.displayName ? `${m.displayName} (${cleanId})` : cleanId
+                };
+            })
+            // Excluir familias discontinuadas (1.0, 1.5, bison, paLM)
+            .filter(m => !m.id.includes('1.5') && !m.id.includes('1.0') && !m.id.includes('bison') && !m.id.includes('aqa'));
+
+        if (activeModels.length > 0) {
+            localStorage.setItem('gemini_discovered_models', JSON.stringify(activeModels.map(m => m.id)));
+        }
+        return activeModels;
+    } catch (e) {
+        console.warn('No se pudieron obtener modelos en vivo de Gemini:', e);
+        return [];
     }
 }
 
@@ -179,10 +230,10 @@ Responde ÚNICAMENTE con el objeto JSON válido, sin texto adicional ni bloques 
         body: JSON.stringify(requestBody)
     });
 
-    // Cascada de modelos si el modelo seleccionado no existe (404)
-    if (!response.ok && response.status === 404 && modelToUse !== 'gemini-1.5-flash') {
-        for (const fallback of FALLBACK_MODELS) {
-            if (fallback === modelToUse) continue;
+    // Cascada de modelos activos si el modelo seleccionado no existe (404)
+    if (!response.ok && response.status === 404) {
+        const fallbacks = getDynamicFallbackModels().filter(fb => fb !== modelToUse);
+        for (const fallback of fallbacks) {
             console.warn(`Modelo ${modelToUse} no disponible (404). Intentando fallback con ${fallback}...`);
             const fallbackEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${fallback}:generateContent?key=${apiKey}`;
             const fbResponse = await fetch(fallbackEndpoint, {

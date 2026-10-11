@@ -8,7 +8,8 @@ import {
     optimizeImageFile, 
     tryNativeBarcodeDetection, 
     analyzeProductImageWithGemini, 
-    applyAiDataToSingleLabel 
+    applyAiDataToSingleLabel,
+    fetchLiveGeminiModels 
 } from '../services/aiVision.js';
 
 let currentExtractedData = null;
@@ -84,9 +85,42 @@ export function syncAiSettingsUI() {
     if (keyInput) keyInput.value = currentKey;
 
     if (modelSelect) {
-        // Verificar si el modelo actual está en la lista de presets
-        const isPreset = AVAILABLE_MODELS.some(m => m.id === currentModel && m.id !== 'custom');
-        if (isPreset) {
+        // Modelos base soportados (3.x)
+        const modelsMap = new Map();
+        AVAILABLE_MODELS.forEach(m => {
+            if (m.id !== 'custom') modelsMap.set(m.id, m.name);
+        });
+
+        // Sumar modelos activos descubiertos dinámicamente
+        try {
+            const cached = localStorage.getItem('gemini_discovered_models');
+            if (cached) {
+                const list = JSON.parse(cached);
+                if (Array.isArray(list)) {
+                    list.forEach(id => {
+                        if (!modelsMap.has(id)) {
+                            modelsMap.set(id, `Gemini (${id})`);
+                        }
+                    });
+                }
+            }
+        } catch (_) {}
+
+        // Regenerar select para eliminar modelos discontinuados
+        modelSelect.innerHTML = '';
+        for (const [id, label] of modelsMap.entries()) {
+            const opt = document.createElement('option');
+            opt.value = id;
+            opt.textContent = label;
+            modelSelect.appendChild(opt);
+        }
+        const customOpt = document.createElement('option');
+        customOpt.value = 'custom';
+        customOpt.textContent = 'Personalizado (Escribir ID...)';
+        modelSelect.appendChild(customOpt);
+
+        const isKnown = modelsMap.has(currentModel);
+        if (isKnown) {
             modelSelect.value = currentModel;
             if (customModelGroup) customModelGroup.classList.add('hidden');
         } else {
@@ -94,6 +128,25 @@ export function syncAiSettingsUI() {
             if (customModelGroup) customModelGroup.classList.remove('hidden');
             if (customModelInput) customModelInput.value = currentModel;
         }
+    }
+}
+
+/**
+ * Consulta a Google AI en tiempo real los modelos activos y actualiza el selector
+ */
+export async function refreshAiModels() {
+    const key = getGeminiApiKey();
+    if (!key) {
+        showToast('Ingresa tu API Key de Gemini para detectar los modelos activos', 'warning');
+        return;
+    }
+    showToast('Consultando modelos activos en Google AI...', 'info');
+    const liveModels = await fetchLiveGeminiModels(key);
+    if (liveModels && liveModels.length > 0) {
+        syncAiSettingsUI();
+        showToast(`Modelos activos sincronizados (${liveModels.length} disponibles)`, 'success');
+    } else {
+        showToast('No se pudieron recuperar modelos en vivo de la API', 'warning');
     }
 }
 
@@ -113,6 +166,13 @@ export function saveAiSettings() {
         chosenModel = customModelInput?.value?.trim() || 'gemini-3.0-flash';
     }
     setActiveModelId(chosenModel);
+
+    // Si guardó clave válida, intentar descubrir modelos activos en segundo plano
+    if (newKey) {
+        fetchLiveGeminiModels(newKey).then(list => {
+            if (list.length > 0) syncAiSettingsUI();
+        }).catch(() => {});
+    }
 
     showToast(`Configuración de IA actualizada (Modelo: ${chosenModel})`, 'success');
 
