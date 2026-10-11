@@ -36,6 +36,14 @@ import {
     updateSavedLabelsUI 
 } from './modules/savedLabels.js';
 import { 
+    openAiScanModal, 
+    closeAiScanModal, 
+    handleAiImageUpload, 
+    confirmAndApplyAiData, 
+    saveAiSettings, 
+    setupClipboardPasteListener 
+} from './modules/aiScanModal.js';
+import { 
     batchItems, 
     renderBatchTable, 
     addBatchRow, 
@@ -128,6 +136,11 @@ window.openSettingsFAB = openSettingsFAB;
 window.closeSettingsFAB = closeSettingsFAB;
 window.toggleSettingsFAB = toggleSettingsFAB;
 window.toggleAccordion = toggleAccordion;
+window.openAiScanModal = openAiScanModal;
+window.closeAiScanModal = closeAiScanModal;
+window.handleAiImageUpload = handleAiImageUpload;
+window.confirmAndApplyAiData = confirmAndApplyAiData;
+window.saveAiSettings = saveAiSettings;
 
 // PWA Install Prompt
 let deferredInstallPrompt = null;
@@ -275,6 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupNetworkListeners();
     updateBluetoothUI();
     updateSavedLabelsUI();
+    setupClipboardPasteListener();
 
     const btProtoSelect = document.getElementById('setting-bt-protocol');
     if (btProtoSelect) {

@@ -203,3 +203,30 @@ body {
     max-height: 900px;
     opacity: 1;
 }
+
+/* Animación de escaneo láser para el modal de IA */
+@keyframes laserScan {
+    0% {
+        top: 2%;
+        opacity: 0.8;
+    }
+    50% {
+        top: 96%;
+        opacity: 1;
+    }
+    100% {
+        top: 2%;
+        opacity: 0.8;
+    }
+}
+
+.ai-laser-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, rgba(99, 102, 241, 0) 0%, rgba(99, 102, 241, 1) 30%, rgba(168, 85, 247, 1) 50%, rgba(236, 72, 153, 1) 70%, rgba(99, 102, 241, 0) 100%);
+    box-shadow: 0 0 16px 4px rgba(168, 85, 247, 0.85);
+    animation: laserScan 2.2s ease-in-out infinite;
+    z-index: 10;
+}

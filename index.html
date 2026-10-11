@@ -97,6 +97,10 @@
                         <span id="saved-labels-count-badge" class="hidden text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-full">0 guardadas</span>
                     </div>
                     <div class="flex items-center space-x-1.5">
+                        <button type="button" onclick="openAiScanModal()" title="Escanear y autorrellenar con IA" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 shadow-2xs active:scale-95">
+                            <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
+                            <span>Escanear con IA</span>
+                        </button>
                         <button type="button" onclick="clearSingleLabelForm()" title="Nueva etiqueta en blanco" class="text-slate-500 hover:text-slate-800 hover:bg-slate-100 px-2.5 py-1 rounded-lg text-xs font-semibold border border-slate-200 transition flex items-center space-x-1">
                             <i class="fa-solid fa-plus text-[10px]"></i>
                             <span>Nueva</span>
@@ -106,6 +110,26 @@
                             <span>Mis Guardadas</span>
                         </button>
                     </div>
+                </div>
+
+                <!-- Banner Inteligente de Escaneo con IA -->
+                <div class="bg-gradient-to-r from-indigo-50/90 via-purple-50/80 to-pink-50/90 p-3 rounded-xl border border-indigo-100 flex items-center justify-between gap-2 shadow-2xs">
+                    <div class="flex items-center space-x-2.5 min-w-0">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center text-xs shadow-xs shrink-0">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                        <div class="truncate">
+                            <p class="text-xs font-bold text-slate-900 leading-tight flex items-center space-x-1">
+                                <span>Autorrellenar con IA</span>
+                                <span class="bg-purple-100 text-purple-700 text-[9px] font-black px-1.5 py-0.2 rounded">Gemini</span>
+                            </p>
+                            <p class="text-[10px] text-slate-500 truncate">Sube o saca una foto a tu producto o código</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="openAiScanModal()" class="shrink-0 bg-white hover:bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold px-3 py-1.5 rounded-lg shadow-2xs transition flex items-center space-x-1 active:scale-95">
+                        <i class="fa-solid fa-wand-magic-sparkles text-purple-600 text-[10px]"></i>
+                        <span>Escanear</span>
+                    </button>
                 </div>
 
                 <!-- Barra rápida de etiquetas recientemente guardadas -->
@@ -565,6 +589,206 @@
                 </button>
                 <button type="button" onclick="closeSavedLabelsModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl transition">
                     Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Escaneo Inteligente con IA (Gemini Multimodal Dinámico) -->
+    <div id="ai-scan-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-2xl max-w-xl w-full p-5 sm:p-6 space-y-4 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden">
+            <!-- Header Modal -->
+            <div class="flex justify-between items-center border-b pb-3.5">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 text-white flex items-center justify-center text-lg shadow-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h3 class="font-bold text-slate-900 text-base leading-tight">Escanear Producto con IA</h3>
+                            <span class="bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded-full text-[10px]">Gemini Vision</span>
+                        </div>
+                        <p class="text-xs text-slate-500">Reconoce nombre, código, precio y detalles desde una imagen</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-1.5">
+                    <button type="button" onclick="document.getElementById('ai-config-section')?.classList.toggle('hidden')" class="text-slate-400 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-slate-50 transition" title="Ajustes de Modelo y API Key">
+                        <i class="fa-solid fa-gear text-base"></i>
+                    </button>
+                    <button type="button" onclick="closeAiScanModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg transition" title="Cerrar">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel Desplegable de Configuración de IA (API Key y Selección Dinámica de Modelo) -->
+            <div id="ai-config-section" class="hidden p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+                <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-bold text-slate-700 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-sliders text-indigo-600"></i>
+                        <span>Configuración del Modelo Gemini</span>
+                    </h4>
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-[11px] text-indigo-600 hover:underline font-semibold flex items-center space-x-1">
+                        <span>Obtener clave gratis</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                    </a>
+                </div>
+
+                <!-- Campo API Key -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Google Gemini API Key:</label>
+                    <div class="relative">
+                        <input type="password" id="ai-api-key-input" placeholder="AIzaSy..." class="w-full text-xs font-mono pl-3 pr-9 py-2 border border-slate-300 rounded-lg bg-white focus:ring-1 focus:ring-indigo-500">
+                        <button type="button" onclick="const inp=document.getElementById('ai-api-key-input'); inp.type = inp.type==='password'?'text':'password';" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Selector Dinámico de Modelo -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Modelo de IA:</label>
+                        <select id="ai-model-select" onchange="document.getElementById('ai-custom-model-group').classList.toggle('hidden', this.value !== 'custom')" class="w-full text-xs border border-slate-300 rounded-lg p-2 bg-white">
+                            <option value="gemini-3.0-flash">Gemini 3.0 Flash (Recomendado)</option>
+                            <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                            <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                            <option value="custom">Personalizado (Escribir ID...)</option>
+                        </select>
+                    </div>
+
+                    <div id="ai-custom-model-group" class="hidden">
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">ID del Modelo Personalizado:</label>
+                        <input type="text" id="ai-custom-model-input" placeholder="Ej: gemini-3.5-flash" class="w-full text-xs font-mono p-2 border border-slate-300 rounded-lg bg-white">
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="button" onclick="saveAiSettings()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-2xs transition">
+                        Guardar Configuración
+                    </button>
+                </div>
+            </div>
+
+            <!-- Área Central con Scroll -->
+            <div class="flex-1 overflow-y-auto space-y-3.5 pr-1 max-h-[60vh]">
+                
+                <!-- Dropzone y Botones de Entrada (Foto / Archivo) -->
+                <div id="ai-upload-dropzone" class="border-2 border-dashed border-indigo-200 hover:border-indigo-400 rounded-2xl p-6 text-center space-y-4 bg-indigo-50/30 transition">
+                    <div class="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl mx-auto shadow-2xs">
+                        <i class="fa-solid fa-camera"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-800">Toma una foto o sube una imagen</h4>
+                        <p class="text-xs text-slate-500 max-w-sm mx-auto mt-0.5">
+                            Fotografía el código de barras, etiqueta o caja del producto. También puedes pegar directamente con <kbd class="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-[10px] font-semibold">Ctrl + V</kbd>.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+                        <!-- Input Cámara Móvil Directa -->
+                        <input type="file" id="ai-camera-input" accept="image/*" capture="environment" class="hidden" onchange="if(this.files[0]) handleAiImageUpload(this.files[0])">
+                        <button type="button" onclick="document.getElementById('ai-camera-input').click()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition flex items-center space-x-2">
+                            <i class="fa-solid fa-camera"></i>
+                            <span>Abrir Cámara</span>
+                        </button>
+
+                        <!-- Input Selector de Archivos -->
+                        <input type="file" id="ai-file-input" accept="image/*" class="hidden" onchange="if(this.files[0]) handleAiImageUpload(this.files[0])">
+                        <button type="button" onclick="document.getElementById('ai-file-input').click()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs font-semibold px-4 py-2.5 rounded-xl shadow-2xs transition flex items-center space-x-2">
+                            <i class="fa-regular fa-image text-indigo-600"></i>
+                            <span>Elegir Archivo</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Contenedor de Vista Previa de Imagen y Animación Láser -->
+                <div id="ai-image-preview-container" class="hidden space-y-3">
+                    <div class="relative w-full max-h-56 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center border border-slate-200 shadow-inner">
+                        <img id="ai-preview-image" src="" alt="Previsualización" class="max-h-56 max-w-full object-contain">
+                        
+                        <!-- Línea Láser Animada -->
+                        <div id="ai-scan-laser" class="ai-laser-line hidden"></div>
+
+                        <!-- Indicador de Carga sobre la imagen -->
+                        <div id="ai-loading-indicator" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-2xs flex flex-col items-center justify-center text-white space-y-2 z-20">
+                            <div class="w-10 h-10 border-3 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
+                            <p class="text-xs font-bold tracking-wide">Analizando con Gemini IA...</p>
+                            <p class="text-[10px] text-slate-300">Extrayendo producto, código y precio</p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="button" onclick="resetAiScanState()" class="text-xs text-indigo-600 hover:underline font-semibold flex items-center space-x-1">
+                            <i class="fa-solid fa-rotate-left text-[11px]"></i>
+                            <span>Escanear otra foto</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Contenedor de Resultados Reconocidos -->
+                <div id="ai-results-container" class="hidden space-y-3 p-3.5 bg-slate-50/80 rounded-xl border border-slate-200">
+                    <div class="flex items-center justify-between border-b pb-2">
+                        <h4 class="text-xs font-bold text-slate-800 flex items-center space-x-1.5">
+                            <i class="fa-solid fa-wand-magic-sparkles text-purple-600"></i>
+                            <span>Datos Detectados (Verifica y Edita)</span>
+                        </h4>
+                        <span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">100% Listo</span>
+                    </div>
+
+                    <div class="space-y-2.5 text-xs">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Nombre / Título:</label>
+                            <input type="text" id="ai-res-title" class="w-full text-xs font-medium p-2 border border-slate-300 rounded-lg bg-white">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Código / SKU / EAN:</label>
+                                <input type="text" id="ai-res-code" class="w-full text-xs font-mono font-bold p-2 border border-slate-300 rounded-lg bg-white text-indigo-700">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Tipo de Código:</label>
+                                <select id="ai-res-symbology" class="w-full text-xs p-2 border border-slate-300 rounded-lg bg-white font-medium">
+                                    <option value="CODE128">Code 128</option>
+                                    <option value="EAN13">EAN-13</option>
+                                    <option value="EAN8">EAN-8</option>
+                                    <option value="UPC">UPC-A</option>
+                                    <option value="CODE39">Code 39</option>
+                                    <option value="QR">Código QR</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Precio:</label>
+                                <input type="text" id="ai-res-price" class="w-full text-xs font-bold p-2 border border-slate-300 rounded-lg bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Símbolo / Moneda:</label>
+                                <input type="text" id="ai-res-currency" value="$" class="w-full text-xs p-2 border border-slate-300 rounded-lg bg-white">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Texto Adicional:</label>
+                            <input type="text" id="ai-res-extra" class="w-full text-xs p-2 border border-slate-300 rounded-lg bg-white">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="pt-3 border-t flex items-center justify-between">
+                <button type="button" onclick="closeAiScanModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl transition">
+                    Cancelar
+                </button>
+                <button type="button" onclick="confirmAndApplyAiData()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 active:scale-95 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition flex items-center space-x-2">
+                    <i class="fa-solid fa-check"></i>
+                    <span>Aplicar a la Etiqueta</span>
                 </button>
             </div>
         </div>
