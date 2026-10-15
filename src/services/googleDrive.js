@@ -242,10 +242,10 @@ export function updateMappingPreview() {
                             qty = isNaN(parsed) || parsed < 1 ? 1 : parsed;
                         }
 
-                        const title = row[titleIdx] || '<span class="text-slate-300">Vacío</span>';
-                        const code = row[codeIdx] || '<span class="text-slate-300">Vacío</span>';
-                        const price = priceIdx !== -1 && row[priceIdx] ? `$ ${String(row[priceIdx]).replace('$', '').trim()}` : '-';
-                        const extra = extraIdx !== -1 && row[extraIdx] ? String(row[extraIdx]) : '-';
+                        const title = row[titleIdx] ? escapeHtml(row[titleIdx]) : '<span class="text-slate-300">Vacío</span>';
+                        const code = row[codeIdx] ? escapeHtml(row[codeIdx]) : '<span class="text-slate-300">Vacío</span>';
+                        const price = priceIdx !== -1 && row[priceIdx] ? `$ ${escapeHtml(String(row[priceIdx]).replace('$', '').trim())}` : '-';
+                        const extra = extraIdx !== -1 && row[extraIdx] ? escapeHtml(String(row[extraIdx])) : '-';
 
                         return `
                             <tr>
@@ -349,3 +349,14 @@ function getSavedMapping(sheetId) {
         return null;
     }
 }
+
+function escapeHtml(str) {
+    if (!str && str !== 0) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+

@@ -261,7 +261,7 @@ Responde ÚNICAMENTE con el objeto JSON válido, sin texto adicional ni bloques 
         throw new Error('La IA no devolvió respuesta para esta imagen');
     }
 
-    // Parsear JSON limpio
+    // Parsear JSON limpio de forma resiliente
     let cleanJson = candidateText.trim();
     if (cleanJson.startsWith('```json')) {
         cleanJson = cleanJson.replace(/^```json/, '').replace(/```$/, '').trim();
@@ -269,7 +269,20 @@ Responde ÚNICAMENTE con el objeto JSON válido, sin texto adicional ni bloques 
         cleanJson = cleanJson.replace(/^```/, '').replace(/```$/, '').trim();
     }
 
-    const parsed = JSON.parse(cleanJson);
+    let parsed = {};
+    try {
+        parsed = JSON.parse(cleanJson);
+    } catch (_) {
+        const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            try {
+                parsed = JSON.parse(jsonMatch[0]);
+            } catch (err) {
+                console.warn('No se pudo parsear el bloque JSON extraído:', err);
+            }
+        }
+    }
+
     return {
         title: parsed.title || '',
         code: parsed.code || '',

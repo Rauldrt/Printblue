@@ -2,7 +2,7 @@ import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
 import { labelConfig } from './paperSettings.js';
 import { showToast } from './toast.js';
-import { printSingleLabelBluetooth, isBluetoothConnected } from '../services/bluetooth.js';
+import { printSingleLabelBluetooth, isBluetoothConnected, renderLabelToMonochromeCanvas } from '../services/bluetooth.js';
 
 export async function printSingleDirectBT() {
     const showTitle = document.getElementById('chk-show-title')?.checked ?? true;
@@ -231,42 +231,41 @@ export function triggerPrintSystem() {
     }, 300);
 }
 
-export function downloadLabelImage() {
-    const container = document.getElementById('label-container');
-    if (!container) return;
-    showToast('Generando imagen de etiqueta...', 'info');
+export async function downloadLabelImage() {
+    showToast('Generando imagen completa de etiqueta...', 'info');
+    try {
+        const showTitle = document.getElementById('chk-show-title')?.checked ?? true;
+        const showPrice = document.getElementById('chk-show-price')?.checked ?? true;
+        const showExtra = document.getElementById('chk-show-extra')?.checked ?? true;
+        const currency = document.getElementById('inp-currency')?.value || '$';
 
-    const svg = container.querySelector('svg');
-    if (svg) {
-        const xml = new XMLSerializer().serializeToString(svg);
-        const svg64 = btoa(xml);
-        const image64 = 'data:image/svg+xml;base64,' + svg64;
+        const rawTitle = document.getElementById('inp-title')?.value || '';
+        const code = document.getElementById('inp-code')?.value || '12345678';
+        const symbology = document.getElementById('inp-symbology')?.value || 'CODE128';
+        const rawPrice = document.getElementById('inp-price')?.value || '';
+        const rawExtra = document.getElementById('inp-extra')?.value || '';
 
-        const img = new Image();
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            canvas.width = container.clientWidth * 2;
-            canvas.height = container.clientHeight * 2;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = "#FFFFFF";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 20, 20, canvas.width - 40, canvas.height - 40);
-
-            const link = document.createElement('a');
-            link.download = `etiqueta-${Date.now()}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+        const item = {
+            title: showTitle ? rawTitle : '',
+            code: code,
+            symbology: symbology,
+            price: showPrice && rawPrice ? `${currency} ${rawPrice}` : '',
+            extra: showExtra ? rawExtra : ''
         };
-        img.src = image64;
-    } else {
-        const qrCanvas = container.querySelector('canvas');
-        if (qrCanvas) {
-            const link = document.createElement('a');
-            link.download = `etiqueta-qr-${Date.now()}.png`;
-            link.href = qrCanvas.toDataURL('image/png');
-            link.click();
-        } else {
-            showToast('Usa impresión del sistema para este formato', 'info');
-        }
+
+        const canvas = await renderLabelToMonochromeCanvas(item, {
+            ...labelConfig,
+            exportFullResolution: true
+        });
+
+        const link = document.createElement('a');
+        const filenameSafe = (item.title || item.code || 'etiqueta').replace(/[^a-zA-Z0-9_-]/g, '_');
+        link.download = `etiqueta-${filenameSafe}-${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        showToast('¡Etiqueta completa descargada con éxito!', 'success');
+    } catch (e) {
+        console.error('Error al descargar imagen de etiqueta:', e);
+        showToast('Error al generar la imagen PNG', 'error');
     }
 }

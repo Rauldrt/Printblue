@@ -270,7 +270,12 @@ export async function sendRawToPrinter(data) {
  */
 export async function renderLabelToMonochromeCanvas(item, config) {
     // 8 dots por mm (203 DPI estándar térmico)
-    const dotsWidth = Math.round(config.widthMm * 8);
+    // Para impresoras térmicas portátiles de 58mm (como la Go Link GL-33), el cabezal físico útil
+    // tiene un máximo de 384 dots (48 mm útiles a 8 dots/mm = 48 bytes por línea de raster).
+    let dotsWidth = Math.round(config.widthMm * 8);
+    if (!config.exportFullResolution && config.widthMm <= 58 && dotsWidth > 384) {
+        dotsWidth = 384;
+    }
     const dotsHeight = Math.round(config.heightMm * 8);
 
     const canvas = document.createElement('canvas');
@@ -359,7 +364,7 @@ export async function renderLabelToMonochromeCanvas(item, config) {
                     resolve();
                 };
                 img.onerror = resolve;
-                img.src = 'data:image/svg+xml;base64,' + btoa(svgXml);
+                img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgXml);
             });
             currentY += barcodeAreaHeight + spacingFooterDots;
         } catch(e) {
@@ -530,7 +535,8 @@ export function buildTSPLCommands(item, config, copies = 1) {
 
     let y = Math.max(10, Math.round((config.paddingTopMm ?? config.paddingMm ?? 2.0) * 8));
     if (item.title) {
-        tspl += `TEXT 20,${y},"3",0,1,1,"${item.title.slice(0, 30)}"\r\n`;
+        const cleanTitle = (item.title || '').replace(/"/g, "'").slice(0, 30);
+        tspl += `TEXT 20,${y},"3",0,1,1,"${cleanTitle}"\r\n`;
         y += 40 + spacingTitleDots;
     } else {
         y += spacingTitleDots;
@@ -538,22 +544,24 @@ export function buildTSPLCommands(item, config, copies = 1) {
 
     const barcodeHeightDots = Math.round(config.heightMm * 8 * (config.barcodeHeight / 100));
     if (item.code) {
+        const cleanCode = (item.code || '').replace(/"/g, '');
         if (item.symbology === 'QR') {
-            tspl += `QRCODE 40,${y},L,5,A,0,"${item.code}"\r\n`;
+            tspl += `QRCODE 40,${y},L,5,A,0,"${cleanCode}"\r\n`;
             y += 110 + spacingFooterDots;
         } else {
-            tspl += `BARCODE 20,${y},"128",${Math.min(90, barcodeHeightDots)},1,0,2,4,"${item.code}"\r\n`;
+            tspl += `BARCODE 20,${y},"128",${Math.min(90, barcodeHeightDots)},1,0,2,4,"${cleanCode}"\r\n`;
             y += Math.min(90, barcodeHeightDots) + 30 + spacingFooterDots;
         }
     }
 
     if (item.extra || item.code) {
-        const text = item.extra || `SKU: ${item.code}`;
+        const text = (item.extra || `SKU: ${item.code}`).replace(/"/g, "'");
         tspl += `TEXT 20,${y},"2",0,1,1,"${text.slice(0, 24)}"\r\n`;
     }
 
     if (item.price) {
-        tspl += `TEXT 250,${y},"3",0,1,1,"$ ${item.price}"\r\n`;
+        const cleanPrice = String(item.price).replace(/"/g, "'");
+        tspl += `TEXT 250,${y},"3",0,1,1,"$ ${cleanPrice}"\r\n`;
     }
 
     tspl += `PRINT ${copies},1\r\n`;
@@ -575,16 +583,17 @@ export async function printSingleLabelBluetooth(item, copies = 1) {
     try {
         const protocol = localStorage.getItem('bt_protocol') || 'escpos';
 
+        // Pre-renderizar una sola vez para optimizar rendimiento de CPU y memoria
+        let payload;
+        if (protocol === 'tspl') {
+            payload = buildTSPLCommands(item, labelConfig, 1);
+        } else {
+            const canvas = await renderLabelToMonochromeCanvas(item, labelConfig);
+            payload = canvasToEscPosCommands(canvas);
+        }
+
         for (let i = 0; i < copies; i++) {
-            if (protocol === 'tspl') {
-                const tsplCode = buildTSPLCommands(item, labelConfig, 1);
-                await sendRawToPrinter(tsplCode);
-            } else {
-                // Modo ESC/POS gráfico (máxima fidelidad)
-                const canvas = await renderLabelToMonochromeCanvas(item, labelConfig);
-                const escposBytes = canvasToEscPosCommands(canvas);
-                await sendRawToPrinter(escposBytes);
-            }
+            await sendRawToPrinter(payload);
             if (copies > 1) await new Promise(r => setTimeout(r, 150));
         }
 
@@ -617,16 +626,18 @@ export async function printBatchBluetooth(items) {
 
         for (const item of items) {
             const copies = parseInt(item.qty) || 1;
+            // Renderizado único por cada producto
+            let payload;
+            if (protocol === 'tspl') {
+                payload = buildTSPLCommands(item, labelConfig, 1);
+            } else {
+                const canvas = await renderLabelToMonochromeCanvas(item, labelConfig);
+                payload = canvasToEscPosCommands(canvas);
+            }
+
             for (let c = 0; c < copies; c++) {
-                if (protocol === 'tspl') {
-                    const tsplCode = buildTSPLCommands(item, labelConfig, 1);
-                    await sendRawToPrinter(tsplCode);
-                } else {
-                    const canvas = await renderLabelToMonochromeCanvas(item, labelConfig);
-                    const escposBytes = canvasToEscPosCommands(canvas);
-                    await sendRawToPrinter(escposBytes);
-                }
-                await new Promise(r => setTimeout(r, 200)); // Pausa entre etiquetas
+                await sendRawToPrinter(payload);
+                await new Promise(r => setTimeout(r, 180)); // Pausa entre copias/etiquetas
             }
         }
 

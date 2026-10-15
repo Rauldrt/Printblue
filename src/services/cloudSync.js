@@ -85,7 +85,6 @@ export async function loadUserDataFromCloud(user) {
             }
 
             updatePreview();
-            isApplyingCloudData = false;
             updateSyncIndicator('synced');
             showToast(`¡Configuraciones y productos sincronizados con tu cuenta Google!`, 'success');
         } else {
@@ -97,6 +96,8 @@ export async function loadUserDataFromCloud(user) {
     } catch (e) {
         console.error('Error cargando datos de la nube:', e);
         updateSyncIndicator('error');
+    } finally {
+        isApplyingCloudData = false;
     }
 }
 
