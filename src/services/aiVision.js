@@ -3,12 +3,13 @@ import { updatePreview } from '../modules/singleLabel.js';
 import { triggerCloudSave } from './cloudSync.js';
 
 export const AVAILABLE_MODELS = [
-    { id: 'gemini-3.0-flash', name: 'Gemini 3.0 Flash (Recomendado / Ultra Rápido)', isDefault: true },
-    { id: 'gemini-3.0-pro', name: 'Gemini 3.0 Pro (Máxima Precisión Visual)' },
+    { id: 'gemini-3.5-flash', name: 'Gemini 3.5 Flash (Recomendado / Visión Rápida)', isDefault: true },
+    { id: 'gemini-3.8-flash', name: 'Gemini 3.8 Flash (Máxima Inteligencia)' },
+    { id: 'gemini-3.5-flash-lite', name: 'Gemini 3.5 Flash-Lite (Económico)' },
     { id: 'custom', name: 'Personalizado (Escribir ID del modelo...)' }
 ];
 
-export const FALLBACK_MODELS = ['gemini-3.0-flash', 'gemini-3.0-pro'];
+export const FALLBACK_MODELS = ['gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-3.5-flash-lite'];
 
 /**
  * Obtiene la API Key configurada
@@ -34,7 +35,7 @@ export function setGeminiApiKey(key) {
 export function getActiveModelId() {
     const saved = localStorage.getItem('gemini_model_id');
     if (saved) return saved.trim();
-    return 'gemini-3.0-flash';
+    return 'gemini-3.5-flash';
 }
 
 /**
