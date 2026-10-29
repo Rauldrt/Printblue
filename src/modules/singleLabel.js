@@ -15,7 +15,7 @@ export async function printSingleDirectBT() {
     const symbology = document.getElementById('inp-symbology')?.value || 'CODE128';
     const rawPrice = document.getElementById('inp-price')?.value || '';
     const rawExtra = document.getElementById('inp-extra')?.value || '';
-    const qty = parseInt(document.getElementById('inp-quantity')?.value) || 1;
+    const qty = parseInt(document.getElementById('modal-inp-quantity')?.value || document.getElementById('inp-quantity')?.value) || 1;
 
     const title = showTitle ? rawTitle : '';
     const price = showPrice && rawPrice ? `${currency} ${rawPrice}` : '';
@@ -28,7 +28,7 @@ export async function printSingleDirectBT() {
 export function adjustQty(val) {
     const input = document.getElementById('inp-quantity');
     const modalInput = document.getElementById('modal-inp-quantity');
-    let current = parseInt(input?.value) || 1;
+    let current = parseInt(modalInput?.value || input?.value) || 1;
     current = Math.max(1, current + val);
     if (input) input.value = current;
     if (modalInput) modalInput.value = current;
@@ -290,7 +290,7 @@ export function triggerPrintSystem() {
 
     applyDynamicPageStyle();
 
-    const qty = parseInt(document.getElementById('inp-quantity')?.value) || 1;
+    const qty = parseInt(document.getElementById('modal-inp-quantity')?.value || document.getElementById('inp-quantity')?.value) || 1;
     const title = document.getElementById('inp-title')?.value || '';
     const code = document.getElementById('inp-code')?.value || '12345678';
     const symbology = document.getElementById('inp-symbology')?.value || 'CODE128';

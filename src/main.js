@@ -348,7 +348,7 @@ function setupEnterKeyNavigation() {
                 e.preventDefault();
                 const getNext = nextMap[id];
                 const nextEl = getNext ? getNext() : null;
-                if (nextEl) {
+                if (nextEl && nextEl.offsetParent !== null) {
                     nextEl.focus();
                     if (typeof nextEl.select === 'function') {
                         nextEl.select();
