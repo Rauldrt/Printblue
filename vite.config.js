@@ -1,8 +1,53 @@
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import fs from 'node:fs';
+import path from 'node:path';
+
+/**
+ * Plugin ligero para Vite que permite modularizar el HTML en componentes/partials
+ * usando la sintaxis: <include src="src/components/NombreComponente.html" />
+ */
+function htmlPartialsPlugin() {
+  return {
+    name: 'html-partials',
+    transformIndexHtml: {
+      order: 'pre',
+      handler(html) {
+        const includeRegex = /<include\s+src=["']([^"']+)["']\s*(?:\/>|>\s*<\/include>)/gi;
+        let result = html;
+        let match;
+        // Soporte para includes múltiples y anidados
+        while ((match = includeRegex.exec(result)) !== null) {
+          const relativePath = match[1];
+          const fullPath = path.resolve(process.cwd(), relativePath);
+          if (fs.existsSync(fullPath)) {
+            const content = fs.readFileSync(fullPath, 'utf-8');
+            // Usamos función replacer () => content para evitar escapes indeseados con caracteres '$'
+            result = result.replace(match[0], () => content);
+            includeRegex.lastIndex = 0;
+          } else {
+            console.error(`[html-partials] Archivo de componente no encontrado: ${fullPath}`);
+            break;
+          }
+        }
+        return result;
+      }
+    },
+    handleHotUpdate({ file, server }) {
+      // Recarga automática en caliente al editar cualquier componente HTML en src/
+      if (file.endsWith('.html')) {
+        server.ws.send({
+          type: 'full-reload',
+          path: '*'
+        });
+      }
+    }
+  };
+}
 
 export default defineConfig({
   plugins: [
+    htmlPartialsPlugin(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable.png'],

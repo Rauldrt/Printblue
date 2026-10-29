@@ -1,0 +1,44 @@
+<header class="bg-slate-900/95 backdrop-blur-md text-white border-b border-slate-800/80 no-print sticky top-0 z-40 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="bg-indigo-600 p-2 rounded-2xl text-white shadow-sm flex items-center justify-center w-10 h-10 transition-transform active:scale-95">
+                <i class="fa-solid fa-barcode text-xl"></i>
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <h1 class="text-base sm:text-lg font-bold leading-none tracking-tight">PrintLabel Pro</h1>
+                    <span id="offline-badge" class="hidden text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 font-semibold px-2 py-0.5 rounded-full items-center">
+                        <i class="fa-solid fa-wifi mr-1"></i>Offline
+                    </span>
+                </div>
+                <p class="text-[11px] text-slate-400">Etiquetas Térmicas, Bluetooth & Google Drive</p>
+            </div>
+        </div>
+
+        <!-- Botones de Acción Rápida M3 -->
+        <div class="flex items-center space-x-2 sm:space-x-2.5">
+            <!-- Estado de Autenticación de Google / Firebase -->
+            <div id="user-auth-status"></div>
+
+            <!-- Botón de Instalación PWA -->
+            <button id="pwa-install-btn" onclick="installPWA()" class="hidden items-center space-x-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm px-3.5 py-2 rounded-full transition font-semibold shadow-sm active:scale-95">
+                <i class="fa-solid fa-download"></i>
+                <span class="hidden sm:inline">Instalar App</span>
+            </button>
+
+            <!-- Conexión Bluetooth y Serial M3 Pills -->
+            <button id="bt-connect-btn" onclick="connectBluetoothPrinter()" class="flex items-center space-x-2 bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 border border-slate-700/80 text-xs sm:text-sm px-3.5 py-2 rounded-full transition shadow-2xs active:scale-95" title="Conectar impresora por Bluetooth">
+                <i class="fa-brands fa-bluetooth-b text-blue-400"></i>
+                <span id="bt-status-text" class="hidden sm:inline">Conectar BT</span>
+            </button>
+            <button onclick="connectSerialPrinter()" class="hidden sm:flex items-center space-x-1.5 bg-slate-800/90 hover:bg-slate-700/90 text-slate-300 border border-slate-700/80 text-xs px-3 py-2 rounded-full transition shadow-2xs active:scale-95" title="Conectar por cable USB o puerto COM serie (PC Windows)">
+                <i class="fa-solid fa-plug text-amber-400"></i>
+                <span>USB / COM</span>
+            </button>
+            
+            <button onclick="openHelpModal()" class="w-9 h-9 rounded-full bg-slate-800/60 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition active:scale-95" title="Ayuda y Configuración">
+                <i class="fa-solid fa-circle-question text-base"></i>
+            </button>
+        </div>
+    </div>
+</header>

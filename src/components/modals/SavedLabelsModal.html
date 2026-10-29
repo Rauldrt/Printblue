@@ -1,0 +1,48 @@
+<!-- Modal Catálogo de Etiquetas Guardadas M3 -->
+<div id="saved-labels-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="m3-dialog-content bg-white rounded-[28px] max-w-2xl w-full p-5 sm:p-6 space-y-4 shadow-2xl flex flex-col max-h-[90vh]">
+        <!-- Header Modal M3 -->
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3.5">
+            <div class="flex items-center space-x-2.5">
+                <div class="w-9 h-9 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-base border border-indigo-100 shadow-2xs">
+                    <i class="fa-solid fa-bookmark"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900 text-base leading-tight">Mis Etiquetas Guardadas</h3>
+                    <p class="text-xs text-slate-500">Reutiliza, edita o imprime directamente tus códigos guardados</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span id="saved-modal-count" class="text-xs font-semibold bg-slate-100 text-slate-700 px-3 py-1 rounded-full border border-slate-200">0 etiquetas</span>
+                <button type="button" onclick="closeSavedLabelsModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition active:scale-95" title="Cerrar ventana">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Buscador M3 en Vivo -->
+        <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input type="text" id="saved-labels-search" oninput="filterSavedLabels(this.value)" placeholder="Buscar etiqueta por nombre, código o precio..." class="m3-input w-full text-xs pl-9 pr-9 py-2.5 rounded-full font-medium">
+            <button type="button" onclick="document.getElementById('saved-labels-search').value=''; filterSavedLabels('');" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs" title="Borrar búsqueda">
+                <i class="fa-solid fa-circle-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Listado con Scroll -->
+        <div id="saved-labels-list" class="flex-1 overflow-y-auto space-y-2.5 pr-1 max-h-[55vh] min-h-[160px]">
+            <!-- Se llena dinámicamente con JavaScript -->
+        </div>
+
+        <!-- Footer Modal M3 -->
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+            <button type="button" onclick="clearSingleLabelForm(); closeSavedLabelsModal();" class="m3-btn-tonal text-xs font-semibold flex items-center space-x-1.5 py-1.5 px-3 rounded-full active:scale-95">
+                <i class="fa-solid fa-plus text-indigo-500"></i>
+                <span>Crear nueva etiqueta vacía</span>
+            </button>
+            <button type="button" onclick="closeSavedLabelsModal()" class="m3-btn-outlined text-xs font-semibold px-4 py-2 rounded-full active:scale-95">
+                Cerrar
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,27 @@
+<!-- Pestañas de Navegación M3 (Segmented Capsule Bar) Sticky -->
+<div id="sticky-tabs-header" class="sticky top-16 z-30 bg-slate-50/95 backdrop-blur-md -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 py-2.5 -mt-4 sm:-mt-6 lg:-mt-8 mb-5 border-b border-slate-200/80 transition-all flex items-center justify-between gap-3">
+    <div class="m3-tabs-bar shadow-2xs">
+        <button onclick="switchTab('single')" id="tab-btn-single" class="tab-btn m3-tab-pill active">
+            <i class="fa-solid fa-tag text-xs"></i>
+            <span>Única</span>
+        </button>
+        <button onclick="switchTab('batch')" id="tab-btn-batch" class="tab-btn m3-tab-pill">
+            <i class="fa-solid fa-layer-group text-xs"></i>
+            <span>Lote</span>
+        </button>
+    </div>
+    
+    <!-- Acciones Rápidas Sticky: IA, Nuevo y Guardadas (Solo Iconos con Badges) -->
+    <div class="flex items-center space-x-2">
+        <button type="button" onclick="openAiScanModal()" title="Escanear y autorrellenar con IA" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white flex items-center justify-center shadow-xs transition-transform active:scale-95" aria-label="Escanear con IA">
+            <i class="fa-solid fa-wand-magic-sparkles text-xs sm:text-sm"></i>
+        </button>
+        <button type="button" onclick="handleHeaderNew()" title="Nueva etiqueta en blanco / Agregar fila" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full m3-btn-outlined flex items-center justify-center text-slate-700 hover:text-indigo-600 hover:border-indigo-400 bg-white shadow-2xs transition-transform active:scale-95" aria-label="Nuevo">
+            <i class="fa-solid fa-plus text-sm sm:text-base"></i>
+        </button>
+        <button type="button" onclick="openSavedLabelsModal()" title="Mis Etiquetas Guardadas" class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full m3-btn-tonal flex items-center justify-center text-indigo-700 bg-indigo-50/90 hover:bg-indigo-100 border border-indigo-200/80 shadow-2xs transition-transform active:scale-95" aria-label="Etiquetas Guardadas">
+            <i class="fa-solid fa-bookmark text-xs sm:text-sm text-indigo-600"></i>
+            <span id="saved-labels-count-badge" class="hidden absolute -top-1.5 -right-1.5 min-w-[19px] h-[19px] px-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-[10px] font-black rounded-full flex items-center justify-center ring-2 ring-white shadow-xs leading-none">0</span>
+        </button>
+    </div>
+</div>

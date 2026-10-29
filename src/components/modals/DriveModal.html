@@ -1,0 +1,19 @@
+<!-- Modal Explorador de Google Drive M3 -->
+<div id="drive-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="m3-dialog-content bg-white rounded-[28px] max-w-lg w-full p-6 space-y-4 shadow-2xl">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+            <h3 class="font-bold text-slate-900 text-base flex items-center space-x-2">
+                <i class="fa-brands fa-google-drive text-emerald-600"></i>
+                <span>Tus Hojas de Google Drive</span>
+            </h3>
+            <button onclick="closeDriveModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition active:scale-95">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+        </div>
+        <p class="text-xs text-slate-500">Selecciona una hoja de cálculo con tus productos (detecta automáticamente columnas de Nombre, Código/SKU, Precio y Cantidad):</p>
+        <div id="drive-files-list" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+        <div class="pt-3 border-t border-slate-100 flex justify-end">
+            <button onclick="closeDriveModal()" class="m3-btn-outlined text-xs px-4 py-2 rounded-full active:scale-95">Cerrar</button>
+        </div>
+    </div>
+</div>
