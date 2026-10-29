@@ -27,10 +27,11 @@ export async function printSingleDirectBT() {
 
 export function adjustQty(val) {
     const input = document.getElementById('inp-quantity');
-    if (!input) return;
-    let current = parseInt(input.value) || 1;
+    const modalInput = document.getElementById('modal-inp-quantity');
+    let current = parseInt(input?.value) || 1;
     current = Math.max(1, current + val);
-    input.value = current;
+    if (input) input.value = current;
+    if (modalInput) modalInput.value = current;
 }
 
 export function applyDynamicPageStyle() {
@@ -72,14 +73,11 @@ export function applyDynamicPageStyle() {
     `;
 }
 
-export function updatePreview() {
-    const container = document.getElementById('label-container');
-    const dimBadge = document.getElementById('preview-dim-badge');
+/**
+ * Renderiza el contenido de una etiqueta dentro de un contenedor dado (desktop o modal)
+ */
+function renderSingleLabelInto(container, isModal = false) {
     if (!container) return;
-
-    if (dimBadge) {
-        dimBadge.innerText = `${labelConfig.widthMm}x${labelConfig.heightMm} mm`;
-    }
 
     // Proporción de pantalla (1 mm ~ 3.78 px)
     const pxWidth = Math.round(labelConfig.widthMm * 3.78);
@@ -111,11 +109,14 @@ export function updatePreview() {
     const showExtra = document.getElementById('chk-show-extra')?.checked ?? true;
     const boldPrice = document.getElementById('chk-bold-price')?.checked ?? true;
 
+    const svgId = isModal ? 'modal-barcode-svg' : 'barcode-svg';
+    const canvasId = isModal ? 'modal-barcode-canvas' : 'barcode-canvas';
+
     container.innerHTML = `
         ${showTitle && title ? `<div class="font-bold text-slate-800 leading-tight uppercase tracking-tight truncate w-full text-center" style="font-size: ${labelConfig.fontSizePt * 0.9}pt; margin-bottom: ${spacingTitlePx}px;">${title}</div>` : ''}
         
         <div class="flex items-center justify-center w-full overflow-hidden" style="${vAlign === 'space-between' ? 'flex: 1;' : ''} margin-bottom: ${spacingFooterPx}px;">
-            ${symbology === 'QR' ? '<canvas id="barcode-canvas"></canvas>' : '<svg id="barcode-svg" class="max-w-full max-h-full"></svg>'}
+            ${symbology === 'QR' ? `<canvas id="${canvasId}"></canvas>` : `<svg id="${svgId}" class="max-w-full max-h-full"></svg>`}
         </div>
 
         <div class="w-full flex items-center justify-between text-slate-800 leading-none">
@@ -124,10 +125,10 @@ export function updatePreview() {
         </div>
     `;
 
-    // Renderizar código
+    // Renderizar código de barras o QR
     try {
         if (symbology === 'QR') {
-            const canvasEl = document.getElementById('barcode-canvas');
+            const canvasEl = document.getElementById(canvasId);
             if (canvasEl) {
                 const qrSize = Math.min(pxWidth * 0.7, pxHeight * (labelConfig.barcodeHeight / 100));
                 QRCode.toCanvas(canvasEl, code, {
@@ -137,7 +138,7 @@ export function updatePreview() {
             }
         } else {
             const barcodeCalculatedHeight = Math.max(25, Math.round(pxHeight * (labelConfig.barcodeHeight / 100)));
-            JsBarcode("#barcode-svg", code, {
+            JsBarcode(`#${svgId}`, code, {
                 format: symbology,
                 width: labelConfig.barcodeWidth,
                 height: barcodeCalculatedHeight,
@@ -149,7 +150,84 @@ export function updatePreview() {
     } catch (e) {
         console.warn('Advertencia en render de código:', e);
     }
+}
+
+/**
+ * Controla la visibilidad dinámica de los botones:
+ * - Botón "Guardar Etiqueta" (aparece solo cuando hay nombre Y código)
+ * - Botón "Vista Previa e Impresión" en móviles (aparece solo cuando hay nombre Y código)
+ */
+export function updateDynamicButtons() {
+    const title = (document.getElementById('inp-title')?.value || '').trim();
+    const code = (document.getElementById('inp-code')?.value || '').trim();
+    const hasRequiredData = title.length > 0 && code.length > 0;
+
+    const saveBtn = document.getElementById('btn-save-label');
+    const previewBtn = document.getElementById('btn-open-preview-modal');
+
+    if (saveBtn) {
+        if (hasRequiredData) {
+            saveBtn.classList.remove('hidden');
+            saveBtn.classList.add('flex');
+        } else {
+            saveBtn.classList.add('hidden');
+            saveBtn.classList.remove('flex');
+        }
+    }
+
+    if (previewBtn) {
+        if (hasRequiredData) {
+            previewBtn.classList.remove('hidden');
+            previewBtn.classList.add('flex');
+        } else {
+            previewBtn.classList.add('hidden');
+            previewBtn.classList.remove('flex');
+        }
+    }
+}
+
+/**
+ * Abre el modal de vista previa e impresión para móviles
+ */
+export function openPreviewModal() {
+    const modal = document.getElementById('preview-modal');
+    if (!modal) return;
+    
+    // Sincronizar cantidad
+    const qty = document.getElementById('inp-quantity')?.value || '1';
+    const modalQty = document.getElementById('modal-inp-quantity');
+    if (modalQty) modalQty.value = qty;
+
+    updatePreview();
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+/**
+ * Cierra el modal de vista previa e impresión
+ */
+export function closePreviewModal() {
+    const modal = document.getElementById('preview-modal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+export function updatePreview() {
+    const dimBadge = document.getElementById('preview-dim-badge');
+    const modalDimBadge = document.getElementById('modal-preview-dim-badge');
+    const dimText = `${labelConfig.widthMm}x${labelConfig.heightMm} mm`;
+    if (dimBadge) dimBadge.innerText = dimText;
+    if (modalDimBadge) modalDimBadge.innerText = dimText;
+
+    const desktopContainer = document.getElementById('label-container');
+    const modalContainer = document.getElementById('modal-label-container');
+
+    if (desktopContainer) renderSingleLabelInto(desktopContainer, false);
+    if (modalContainer) renderSingleLabelInto(modalContainer, true);
+
     updateExtrasIndicator();
+    updateDynamicButtons();
 }
 
 /**
@@ -198,6 +276,9 @@ export function updateExtrasIndicator() {
 
 window.toggleExtrasSubcard = toggleExtrasSubcard;
 window.updateExtrasIndicator = updateExtrasIndicator;
+window.updateDynamicButtons = updateDynamicButtons;
+window.openPreviewModal = openPreviewModal;
+window.closePreviewModal = closePreviewModal;
 
 export function triggerPrintSystem() {
     const printArea = document.getElementById('print-area');

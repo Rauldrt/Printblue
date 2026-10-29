@@ -23,7 +23,10 @@ import {
     downloadLabelImage,
     printSingleDirectBT,
     toggleExtrasSubcard,
-    updateExtrasIndicator
+    updateExtrasIndicator,
+    updateDynamicButtons,
+    openPreviewModal,
+    closePreviewModal
 } from './modules/singleLabel.js';
 import { 
     saveCurrentSingleLabel, 
@@ -164,6 +167,9 @@ window.handleHeaderNew = function() {
 };
 window.toggleExtrasSubcard = toggleExtrasSubcard;
 window.updateExtrasIndicator = updateExtrasIndicator;
+window.updateDynamicButtons = updateDynamicButtons;
+window.openPreviewModal = openPreviewModal;
+window.closePreviewModal = closePreviewModal;
 
 // PWA Install Prompt
 let deferredInstallPrompt = null;
@@ -233,6 +239,7 @@ export function switchTab(tabName) {
 window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         closeSettingsFAB();
+        closePreviewModal();
     }
 });
 
