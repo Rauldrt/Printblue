@@ -155,6 +155,15 @@ export function clearSingleLabelForm() {
     updatePreview();
     updateSavedLabelsUI();
     showToast('Formulario limpio para una nueva etiqueta', 'info');
+
+    // Activar y enfocar el campo de nombre del producto
+    setTimeout(() => {
+        const titleInp = document.getElementById('inp-title');
+        if (titleInp) {
+            titleInp.focus();
+            if (typeof titleInp.select === 'function') titleInp.select();
+        }
+    }, 60);
 }
 
 /**

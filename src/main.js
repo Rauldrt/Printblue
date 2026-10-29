@@ -151,7 +151,15 @@ window.handleHeaderNew = function() {
         addBatchRow();
         showToast('Fila agregada al lote', 'info');
     } else {
+        if (window.switchTab) window.switchTab('single');
         clearSingleLabelForm();
+        setTimeout(() => {
+            const titleInp = document.getElementById('inp-title');
+            if (titleInp) {
+                titleInp.focus();
+                if (typeof titleInp.select === 'function') titleInp.select();
+            }
+        }, 80);
     }
 };
 window.toggleExtrasSubcard = toggleExtrasSubcard;
@@ -302,6 +310,46 @@ function setupNetworkListeners() {
     updateStatus();
 }
 
+// Navegación con tecla Enter entre inputs para teclado físico y virtual
+function setupEnterKeyNavigation() {
+    const nextMap = {
+        'inp-title': () => document.getElementById('inp-code'),
+        'inp-code': () => {
+            const subcard = document.getElementById('extras-subcard');
+            const isExtrasOpen = subcard && !subcard.classList.contains('hidden');
+            if (isExtrasOpen) {
+                return document.getElementById('inp-price');
+            }
+            return document.getElementById('inp-quantity');
+        },
+        'inp-price': () => document.getElementById('inp-currency'),
+        'inp-currency': () => document.getElementById('inp-extra'),
+        'inp-extra': () => document.getElementById('inp-quantity'),
+        'inp-quantity': () => null
+    };
+
+    Object.keys(nextMap).forEach(id => {
+        const input = document.getElementById(id);
+        if (!input) return;
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                e.preventDefault();
+                const getNext = nextMap[id];
+                const nextEl = getNext ? getNext() : null;
+                if (nextEl) {
+                    nextEl.focus();
+                    if (typeof nextEl.select === 'function') {
+                        nextEl.select();
+                    }
+                } else {
+                    input.blur();
+                }
+            }
+        });
+    });
+}
+
 // Inicialización de la aplicación
 document.addEventListener('DOMContentLoaded', () => {
     initFirebase();
@@ -311,6 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateBluetoothUI();
     updateSavedLabelsUI();
     setupClipboardPasteListener();
+    setupEnterKeyNavigation();
 
     const btProtoSelect = document.getElementById('setting-bt-protocol');
     if (btProtoSelect) {
