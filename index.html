@@ -116,41 +116,62 @@
                     </div>
 
                     <!-- Código de Barras / SKU -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Código / SKU / EAN</label>
-                            <input type="text" id="inp-code" value="779123456789" class="m3-input w-full text-sm p-2.5 font-mono" placeholder="12345678">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Tipo de Código</label>
-                            <select id="inp-symbology" class="m3-input w-full text-sm p-2.5 bg-white font-medium">
-                                <option value="CODE128">Code 128 (Uso Interno/SKU)</option>
-                                <option value="EAN13">EAN-13 (Comercial 13 dígitos)</option>
-                                <option value="EAN8">EAN-8 (8 dígitos)</option>
-                                <option value="UPC">UPC-A (EE.UU.)</option>
-                                <option value="CODE39">Code 39</option>
-                                <option value="QR">Código QR</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Precio y Moneda -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Precio</label>
-                            <input type="text" id="inp-price" value="4500" class="m3-input w-full text-sm p-2.5 font-medium" placeholder="Ej: 1500.00">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Símbolo / Moneda</label>
-                            <input type="text" id="inp-currency" value="$" class="m3-input w-full text-sm p-2.5 font-medium" placeholder="Ej: $ o U$S">
-                        </div>
-                    </div>
-
-                    <!-- Texto Secundario u Adicional -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Texto Adicional (Opcional)</label>
-                        <input type="text" id="inp-extra" value="Mi Tienda - Hecho en Argentina" class="m3-input w-full text-sm p-2.5 font-medium" placeholder="Ej: Lote 104 - Venc: 12/26">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Código / SKU / EAN</label>
+                        <input type="text" id="inp-code" value="779123456789" class="m3-input w-full text-sm p-2.5 font-mono" placeholder="12345678">
+                    </div>
+
+                    <!-- Botón Desplegable y Subcard: Extras -->
+                    <div class="pt-1">
+                        <button type="button" onclick="toggleExtrasSubcard()" id="btn-toggle-extras" class="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-50/90 hover:bg-indigo-50/70 border border-slate-200/90 hover:border-indigo-300 transition-all duration-200 shadow-2xs group active:scale-[0.99]">
+                            <div class="flex items-center space-x-2.5">
+                                <div class="w-7 h-7 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs group-hover:bg-indigo-600 group-hover:text-white transition-colors shadow-2xs">
+                                    <i class="fa-solid fa-sliders"></i>
+                                </div>
+                                <div class="text-left">
+                                    <span class="block text-xs font-bold text-slate-800">Extras</span>
+                                    <span class="block text-[10px] text-slate-500 font-medium">Tipo de código, precio, moneda y texto adicional</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span id="extras-active-pill" class="hidden text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-full shadow-2xs">Activo</span>
+                                <i id="extras-chevron" class="fa-solid fa-chevron-down text-slate-400 group-hover:text-indigo-600 transition-transform duration-300 text-xs"></i>
+                            </div>
+                        </button>
+
+                        <!-- Subcard Contenedor Oculto -->
+                        <div id="extras-subcard" class="hidden mt-2 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-b from-slate-50/95 to-indigo-50/40 border border-indigo-100/90 space-y-3.5 shadow-2xs transition-all duration-300">
+                            <!-- Tipo de Código -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Tipo de Código</label>
+                                <select id="inp-symbology" class="m3-input w-full text-sm p-2.5 bg-white font-medium">
+                                    <option value="CODE128">Code 128 (Uso Interno/SKU)</option>
+                                    <option value="EAN13">EAN-13 (Comercial 13 dígitos)</option>
+                                    <option value="EAN8">EAN-8 (8 dígitos)</option>
+                                    <option value="UPC">UPC-A (EE.UU.)</option>
+                                    <option value="CODE39">Code 39</option>
+                                    <option value="QR">Código QR</option>
+                                </select>
+                            </div>
+
+                            <!-- Precio y Moneda -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Precio</label>
+                                    <input type="text" id="inp-price" value="4500" class="m3-input w-full text-sm p-2.5 font-medium" placeholder="Ej: 1500.00">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Símbolo / Moneda</label>
+                                    <input type="text" id="inp-currency" value="$" class="m3-input w-full text-sm p-2.5 font-medium" placeholder="Ej: $ o U$S">
+                                </div>
+                            </div>
+
+                            <!-- Texto Secundario u Adicional -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Texto Adicional (Opcional)</label>
+                                <input type="text" id="inp-extra" value="Mi Tienda - Hecho en Argentina" class="m3-input w-full text-sm p-2.5 font-medium" placeholder="Ej: Lote 104 - Venc: 12/26">
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Cantidad a Imprimir -->

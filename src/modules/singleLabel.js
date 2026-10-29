@@ -149,7 +149,55 @@ export function updatePreview() {
     } catch (e) {
         console.warn('Advertencia en render de código:', e);
     }
+    updateExtrasIndicator();
 }
+
+/**
+ * Controla la apertura/cierre del subcard de opciones Extras
+ */
+export function toggleExtrasSubcard() {
+    const subcard = document.getElementById('extras-subcard');
+    const chevron = document.getElementById('extras-chevron');
+    if (!subcard) return;
+    
+    const isClosed = subcard.classList.contains('hidden');
+    if (isClosed) {
+        subcard.classList.remove('hidden');
+        if (chevron) chevron.classList.add('rotate-180');
+    } else {
+        subcard.classList.add('hidden');
+        if (chevron) chevron.classList.remove('rotate-180');
+    }
+}
+
+/**
+ * Actualiza el indicador dinámico en el botón Extras
+ */
+export function updateExtrasIndicator() {
+    const price = document.getElementById('inp-price')?.value?.trim();
+    const extra = document.getElementById('inp-extra')?.value?.trim();
+    const symbology = document.getElementById('inp-symbology')?.value;
+    const activePill = document.getElementById('extras-active-pill');
+    
+    if (activePill) {
+        if (price || extra || (symbology && symbology !== 'CODE128')) {
+            activePill.classList.remove('hidden');
+            if (price) {
+                const curr = document.getElementById('inp-currency')?.value || '$';
+                activePill.innerText = `${curr} ${price}`;
+            } else if (extra) {
+                activePill.innerText = 'Texto extra';
+            } else {
+                activePill.innerText = symbology || 'Personalizado';
+            }
+        } else {
+            activePill.classList.add('hidden');
+        }
+    }
+}
+
+window.toggleExtrasSubcard = toggleExtrasSubcard;
+window.updateExtrasIndicator = updateExtrasIndicator;
 
 export function triggerPrintSystem() {
     const printArea = document.getElementById('print-area');

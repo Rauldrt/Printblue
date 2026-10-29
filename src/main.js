@@ -21,7 +21,9 @@ import {
     adjustQty, 
     triggerPrintSystem, 
     downloadLabelImage,
-    printSingleDirectBT 
+    printSingleDirectBT,
+    toggleExtrasSubcard,
+    updateExtrasIndicator
 } from './modules/singleLabel.js';
 import { 
     saveCurrentSingleLabel, 
@@ -152,6 +154,8 @@ window.handleHeaderNew = function() {
         clearSingleLabelForm();
     }
 };
+window.toggleExtrasSubcard = toggleExtrasSubcard;
+window.updateExtrasIndicator = updateExtrasIndicator;
 
 // PWA Install Prompt
 let deferredInstallPrompt = null;
