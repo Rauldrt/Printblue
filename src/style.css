@@ -144,6 +144,15 @@ body {
     }
 }
 
+/* Speed Dial Menú Flotante para Móviles */
+#m3-fab-speed-dial {
+    bottom: 86px;
+    right: 16px;
+}
+#m3-fab-speed-dial button {
+    box-shadow: 0 10px 25px -3px rgba(15, 23, 42, 0.25), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+}
+
 /* Gatillo FAB visible solo cuando está colapsado */
 .m3-fab-trigger-btn {
     width: 58px;

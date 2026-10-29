@@ -388,16 +388,18 @@ export function renderSavedLabelsModal() {
 export function updateSavedLabelsUI() {
     const labels = getSavedLabels();
     
-    // 1. Badge contador dinámico en el botón de la barra sticky
-    const countBadge = document.getElementById('saved-labels-count-badge');
-    if (countBadge) {
-        if (labels.length > 0) {
-            countBadge.innerText = labels.length > 99 ? '99+' : String(labels.length);
-            countBadge.classList.remove('hidden');
-        } else {
-            countBadge.classList.add('hidden');
+    // 1. Badge contador dinámico en el botón de la barra sticky y en el FAB móvil
+    ['saved-labels-count-badge', 'saved-labels-count-badge-fab'].forEach(id => {
+        const countBadge = document.getElementById(id);
+        if (countBadge) {
+            if (labels.length > 0) {
+                countBadge.innerText = labels.length > 99 ? '99+' : String(labels.length);
+                countBadge.classList.remove('hidden');
+            } else {
+                countBadge.classList.add('hidden');
+            }
         }
-    }
+    });
 
     // 2. Chip bar de etiquetas recientes con gradiente (fuera del card)
     const recentBar = document.getElementById('recent-saved-labels-bar');

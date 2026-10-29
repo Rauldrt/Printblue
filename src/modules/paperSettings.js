@@ -319,7 +319,51 @@ export function updateSettingsSummaries() {
    CONTROLADORES DEL FAB MATERIAL DESIGN 3
    ========================================== */
 
+export function handleFabClick() {
+    if (window.innerWidth <= 640) {
+        toggleFabSpeedDial();
+    } else {
+        openSettingsFAB();
+    }
+}
+
+export function toggleFabSpeedDial() {
+    const speedDial = document.getElementById('m3-fab-speed-dial');
+    const backdrop = document.getElementById('m3-speed-dial-backdrop');
+    const icon = document.getElementById('m3-fab-icon');
+    if (!speedDial) return;
+
+    const isHidden = speedDial.classList.contains('hidden');
+    if (isHidden) {
+        speedDial.classList.remove('hidden');
+        speedDial.classList.add('flex');
+        if (backdrop) backdrop.classList.remove('hidden');
+        if (icon) {
+            icon.classList.remove('fa-sliders');
+            icon.classList.add('fa-xmark');
+        }
+    } else {
+        closeFabSpeedDial();
+    }
+}
+
+export function closeFabSpeedDial() {
+    const speedDial = document.getElementById('m3-fab-speed-dial');
+    const backdrop = document.getElementById('m3-speed-dial-backdrop');
+    const icon = document.getElementById('m3-fab-icon');
+    if (speedDial) {
+        speedDial.classList.add('hidden');
+        speedDial.classList.remove('flex');
+    }
+    if (backdrop) backdrop.classList.add('hidden');
+    if (icon) {
+        icon.classList.remove('fa-xmark');
+        icon.classList.add('fa-sliders');
+    }
+}
+
 export function openSettingsFAB() {
+    closeFabSpeedDial();
     const container = document.getElementById('m3-settings-fab');
     const backdrop = document.getElementById('m3-fab-backdrop');
     if (container) {
@@ -331,6 +375,7 @@ export function openSettingsFAB() {
 }
 
 export function closeSettingsFAB() {
+    closeFabSpeedDial();
     const container = document.getElementById('m3-settings-fab');
     const backdrop = document.getElementById('m3-fab-backdrop');
     if (container) {

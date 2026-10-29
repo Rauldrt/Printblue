@@ -14,7 +14,10 @@ import {
     openSettingsFAB,
     closeSettingsFAB,
     toggleSettingsFAB,
-    toggleAccordion
+    toggleAccordion,
+    handleFabClick,
+    toggleFabSpeedDial,
+    closeFabSpeedDial
 } from './modules/paperSettings.js';
 import { 
     updatePreview, 
@@ -156,6 +159,9 @@ window.openSettingsFAB = openSettingsFAB;
 window.closeSettingsFAB = closeSettingsFAB;
 window.toggleSettingsFAB = toggleSettingsFAB;
 window.toggleAccordion = toggleAccordion;
+window.handleFabClick = handleFabClick;
+window.toggleFabSpeedDial = toggleFabSpeedDial;
+window.closeFabSpeedDial = closeFabSpeedDial;
 window.openAiScanModal = openAiScanModal;
 window.closeAiScanModal = closeAiScanModal;
 window.handleAiImageUpload = handleAiImageUpload;
@@ -285,6 +291,7 @@ window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         closeSettingsFAB();
         closePreviewModal();
+        closeFabSpeedDial();
     }
 });
 

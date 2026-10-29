@@ -2,15 +2,47 @@
      MATERIAL DESIGN 3 - FLOATING ACTION BUTTON & SETTINGS CARD
      ======================================================== -->
 
-<!-- Backdrop oscuro para cerrar al hacer clic afuera -->
+<!-- Backdrop oscuro para cerrar al hacer clic afuera del Card de Ajustes -->
 <div id="m3-fab-backdrop" class="m3-fab-backdrop" onclick="closeSettingsFAB()"></div>
+
+<!-- Backdrop para cerrar Speed Dial en móvil -->
+<div id="m3-speed-dial-backdrop" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 transition-opacity" onclick="closeFabSpeedDial()"></div>
+
+<!-- Speed Dial Menú Flotante para Pantallas Pequeñas (Agrupa IA, Nuevo, Guardadas y Ajustes) -->
+<div id="m3-fab-speed-dial" class="hidden sm:hidden fixed bottom-24 right-4 z-50 flex flex-col items-end space-y-2.5 transition-all select-none">
+    
+    <!-- Opción 1: Escanear con IA -->
+    <button type="button" onclick="closeFabSpeedDial(); openAiScanModal();" class="flex items-center space-x-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white pl-3.5 pr-4 py-2.5 rounded-full shadow-lg border border-purple-400/30 active:scale-95 transition-all">
+        <i class="fa-solid fa-wand-magic-sparkles text-xs text-amber-300"></i>
+        <span class="text-xs font-bold tracking-tight">Escanear con IA</span>
+    </button>
+
+    <!-- Opción 2: Nueva Etiqueta / Fila -->
+    <button type="button" onclick="closeFabSpeedDial(); handleHeaderNew();" class="flex items-center space-x-2.5 bg-white text-slate-800 hover:text-indigo-600 pl-3.5 pr-4 py-2.5 rounded-full shadow-lg border border-slate-200 active:scale-95 transition-all">
+        <i class="fa-solid fa-plus text-xs text-indigo-600"></i>
+        <span class="text-xs font-bold tracking-tight">Nueva Etiqueta</span>
+    </button>
+
+    <!-- Opción 3: Mis Guardadas -->
+    <button type="button" onclick="closeFabSpeedDial(); openSavedLabelsModal();" class="relative flex items-center space-x-2.5 bg-white text-indigo-700 pl-3.5 pr-4 py-2.5 rounded-full shadow-lg border border-indigo-200 active:scale-95 transition-all">
+        <i class="fa-solid fa-bookmark text-xs text-indigo-600"></i>
+        <span class="text-xs font-bold tracking-tight">Mis Guardadas</span>
+        <span id="saved-labels-count-badge-fab" class="hidden ml-1 px-1.5 py-0.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-[9px] font-black rounded-full leading-none">0</span>
+    </button>
+
+    <!-- Opción 4: Ajustes y Calibración -->
+    <button type="button" onclick="closeFabSpeedDial(); openSettingsFAB();" class="flex items-center space-x-2.5 bg-slate-900 text-white pl-3.5 pr-4 py-2.5 rounded-full shadow-lg border border-slate-700 active:scale-95 transition-all">
+        <i class="fa-solid fa-sliders text-xs text-indigo-400"></i>
+        <span class="text-xs font-bold tracking-tight">Ajustes & Calibración</span>
+    </button>
+</div>
 
 <!-- Contenedor Transformable (FAB -> Card con animación de estiramiento M3) -->
 <div id="m3-settings-fab" class="m3-fab-morph-container is-collapsed">
     
     <!-- Estado Colapsado: Botón FAB Flotante M3 -->
-    <button type="button" onclick="openSettingsFAB()" class="m3-fab-trigger-btn group" title="Configuraciones y Ajustes">
-        <i class="fa-solid fa-sliders text-2xl text-white group-hover:scale-110 transition-transform duration-300"></i>
+    <button type="button" onclick="handleFabClick()" class="m3-fab-trigger-btn group" title="Acciones y Ajustes">
+        <i id="m3-fab-icon" class="fa-solid fa-sliders text-2xl text-white group-hover:scale-110 transition-transform duration-300"></i>
     </button>
 
     <!-- Estado Expandido: Card de Configuración M3 con Acordeón -->
