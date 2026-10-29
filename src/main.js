@@ -65,6 +65,20 @@ import {
     removeBatchRowById
 } from './modules/batchPrinting.js';
 import { 
+    designerState,
+    loadDesignerConfig,
+    saveDesignerConfig,
+    syncDesignerFormFromState,
+    syncDesignerStateFromForm,
+    handleLogoUpload,
+    removeLogo,
+    renderDesignerPreview,
+    printDesignerDirectBT,
+    downloadDesignerLabelImage,
+    triggerDesignerPrintSystem,
+    adjustDesignerQty
+} from './modules/designer.js';
+import { 
     connectBluetoothPrinter, 
     connectSerialPrinter,
     isBluetoothConnected, 
@@ -95,14 +109,14 @@ window.showToast = showToast;
 window.switchTab = switchTab;
 window.adjustQty = adjustQty;
 window.updatePreview = updatePreview;
-window.applyPreset = (w, h) => applyPreset(w, h, updatePreview);
-window.saveSettings = () => saveSettings(updatePreview);
-window.syncMarginInputs = (type, val) => syncMarginInputs(type, val, updatePreview);
-window.syncSpacingInputs = (type, val) => syncSpacingInputs(type, val, updatePreview);
-window.syncGapInput = (val) => syncGapInput(val, updatePreview);
-window.syncFeedOffsetInput = (val) => syncFeedOffsetInput(val, updatePreview);
-window.setFeedMode = (mode) => setFeedMode(mode, updatePreview);
-window.setVerticalAlign = (align) => setVerticalAlign(align, updatePreview);
+window.applyPreset = (w, h) => { applyPreset(w, h, updatePreview); renderDesignerPreview(); };
+window.saveSettings = () => { saveSettings(updatePreview); renderDesignerPreview(); };
+window.syncMarginInputs = (type, val) => { syncMarginInputs(type, val, updatePreview); renderDesignerPreview(); };
+window.syncSpacingInputs = (type, val) => { syncSpacingInputs(type, val, updatePreview); renderDesignerPreview(); };
+window.syncGapInput = (val) => { syncGapInput(val, updatePreview); renderDesignerPreview(); };
+window.syncFeedOffsetInput = (val) => { syncFeedOffsetInput(val, updatePreview); renderDesignerPreview(); };
+window.setFeedMode = (mode) => { setFeedMode(mode, updatePreview); renderDesignerPreview(); };
+window.setVerticalAlign = (align) => { setVerticalAlign(align, updatePreview); renderDesignerPreview(); };
 window.feedOneLabelBluetooth = feedOneLabelBluetooth;
 window.triggerPrintSystem = triggerPrintSystem;
 window.downloadLabelImage = downloadLabelImage;
@@ -150,9 +164,19 @@ window.saveAiSettings = saveAiSettings;
 window.refreshAiModels = refreshAiModels;
 window.handleHeaderNew = function() {
     const batchTab = document.getElementById('tab-batch');
+    const designerTab = document.getElementById('tab-designer');
     if (batchTab && !batchTab.classList.contains('hidden')) {
         addBatchRow();
         showToast('Fila agregada al lote', 'info');
+    } else if (designerTab && !designerTab.classList.contains('hidden')) {
+        designerState.headerText = '';
+        designerState.subHeaderText = '';
+        designerState.codeValue = '';
+        designerState.footerText = '';
+        designerState.price = '';
+        syncDesignerFormFromState();
+        renderDesignerPreview();
+        showToast('Plantilla limpia en blanco', 'info');
     } else {
         if (window.switchTab) window.switchTab('single');
         clearSingleLabelForm();
@@ -170,6 +194,20 @@ window.updateExtrasIndicator = updateExtrasIndicator;
 window.updateDynamicButtons = updateDynamicButtons;
 window.openPreviewModal = openPreviewModal;
 window.closePreviewModal = closePreviewModal;
+
+// Diseñador Personalizado Window Bindings
+window.handleLogoUpload = handleLogoUpload;
+window.removeLogo = removeLogo;
+window.saveDesignerConfig = saveDesignerConfig;
+window.printDesignerDirectBT = printDesignerDirectBT;
+window.downloadDesignerLabelImage = downloadDesignerLabelImage;
+window.triggerDesignerPrintSystem = triggerDesignerPrintSystem;
+window.adjustDesignerQty = adjustDesignerQty;
+window.setDesignerLogoAlign = (align) => {
+    designerState.logoAlign = align;
+    saveDesignerConfig(false);
+    renderDesignerPreview();
+};
 
 // PWA Install Prompt
 let deferredInstallPrompt = null;
@@ -226,15 +264,18 @@ export function switchTab(tabName) {
 
     const recentBar = document.getElementById('recent-saved-labels-bar');
     if (recentBar) {
-        if (tabName === 'batch') {
-            recentBar.classList.add('hidden');
-        } else {
+        if (tabName === 'single') {
             updateSavedLabelsUI();
+        } else {
+            recentBar.classList.add('hidden');
         }
     }
 
     if (tabName === 'single') {
         updatePreview();
+    } else if (tabName === 'designer') {
+        renderDesignerPreview();
+        updateDynamicButtons();
     } else {
         updateDynamicButtons();
     }
@@ -378,11 +419,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const initialTab = window.location.hash ? window.location.hash.replace('#', '') : 'single';
-    if (['single', 'batch', 'settings'].includes(initialTab)) {
+    if (['single', 'batch', 'designer', 'settings'].includes(initialTab)) {
         switchTab(initialTab);
     } else {
         updatePreview();
     }
+
+    // Inicializar Diseñador & Logo
+    loadDesignerConfig();
+    syncDesignerFormFromState();
+    renderDesignerPreview();
+
+    // Listeners para campos del Diseñador Personalizado
+    const designerInputs = [
+        'inp-designer-header', 'inp-designer-subheader', 'inp-designer-code-value', 
+        'inp-designer-code-sub', 'inp-designer-footer', 'inp-designer-price', 
+        'inp-designer-currency'
+    ];
+    designerInputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', () => { syncDesignerStateFromForm(); renderDesignerPreview(); });
+    });
+
+    ['chk-designer-show-logo', 'chk-designer-invert-logo', 'chk-designer-show-divider', 'chk-designer-show-code', 'inp-designer-code-type'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', () => { syncDesignerStateFromForm(); renderDesignerPreview(); });
+    });
+
+    ['setting-designer-threshold', 'setting-designer-logo-size'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', () => { syncDesignerStateFromForm(); renderDesignerPreview(); });
+    });
 
     // Configurar listeners de inputs en etiqueta única para refresco reactivo
     const inputs = ['inp-title', 'inp-code', 'inp-symbology', 'inp-price', 'inp-currency', 'inp-extra', 
