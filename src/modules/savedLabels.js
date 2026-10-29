@@ -404,34 +404,38 @@ export function updateSavedLabelsUI() {
     if (recentBar) {
         if (labels.length > 0) {
             recentBar.classList.remove('hidden');
-            const recent = labels.slice(0, 3);
+            const recent = labels.slice(0, 10);
             recentBar.innerHTML = `
-                <div class="bg-gradient-to-r from-indigo-50/90 via-purple-50/80 to-pink-50/70 border border-indigo-100/90 p-3 sm:p-3.5 rounded-2xl shadow-2xs backdrop-blur-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all">
-                    <div class="flex items-center space-x-2 text-xs font-bold text-slate-800 shrink-0">
-                        <div class="w-6 h-6 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center text-[10px] shadow-2xs">
-                            <i class="fa-solid fa-clock-rotate-left"></i>
+                <div class="bg-gradient-to-r from-indigo-50/90 via-purple-50/80 to-pink-50/70 border border-indigo-100/90 p-2.5 sm:p-3 rounded-2xl shadow-2xs backdrop-blur-xs space-y-1.5 transition-all">
+                    <div class="flex items-center justify-between px-0.5">
+                        <div class="flex items-center space-x-2 text-xs font-bold text-slate-800 shrink-0">
+                            <div class="w-5 h-5 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center text-[9px] shadow-2xs">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                            </div>
+                            <span class="text-[11px] sm:text-xs">Reutilizar reciente:</span>
                         </div>
-                        <span>Reutilizar reciente:</span>
+                        <button type="button" onclick="openSavedLabelsModal()" class="text-indigo-600 hover:text-indigo-800 font-bold text-[11px] sm:text-xs flex items-center space-x-1 shrink-0 hover:underline">
+                            <span>Ver todas (${labels.length})</span>
+                            <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                        </button>
                     </div>
-                    <div class="flex flex-wrap items-center gap-2 flex-1">
+
+                    <!-- Carrusel Horizontal en una sola línea sin apilación -->
+                    <div class="flex items-center space-x-2 overflow-x-auto no-scrollbar scroll-smooth py-1 px-0.5" style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
                         ${recent.map(l => {
                             const isActive = activeEditingLabelId === l.id;
                             return `
-                                <button type="button" onclick="loadSavedLabel('${l.id}')" class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all duration-200 shadow-2xs active:scale-95 ${
+                                <button type="button" onclick="loadSavedLabel('${l.id}')" class="shrink-0 inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all duration-200 shadow-2xs active:scale-95 ${
                                     isActive 
                                     ? 'bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 text-white border-transparent shadow-xs font-bold ring-2 ring-indigo-400/40' 
                                     : 'bg-white hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 text-slate-800 hover:text-indigo-700 border-indigo-200/80 hover:border-indigo-300'
-                                }">
+                                }" style="scroll-snap-align: start;">
                                     <span class="truncate max-w-[130px] sm:max-w-[160px]">${escapeHtml(l.title || l.code)}</span>
                                     ${l.price ? `<span class="px-1.5 py-0.5 rounded-md text-[10px] font-bold ${isActive ? 'bg-white/20 text-white' : 'bg-indigo-50 text-indigo-700'}">${escapeHtml(l.currency || '$')}${escapeHtml(l.price)}</span>` : ''}
                                 </button>
                             `;
                         }).join('')}
                     </div>
-                    <button type="button" onclick="openSavedLabelsModal()" class="text-indigo-600 hover:text-indigo-800 font-bold text-xs flex items-center space-x-1 shrink-0 self-end sm:self-auto hover:underline">
-                        <span>Ver todas (${labels.length})</span>
-                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                    </button>
                 </div>
             `;
         } else {

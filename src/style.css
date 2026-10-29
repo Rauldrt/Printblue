@@ -438,3 +438,12 @@ button:active:not(:disabled), .m3-clickable:active {
     animation: m3DialogEnter 280ms var(--m3-easing-emphasized) forwards;
     box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.28), 0 0 0 1px rgba(226, 232, 240, 0.8) !important;
 }
+
+/* Utilidad para carruseles horizontales táctiles sin barra visible */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
