@@ -382,6 +382,13 @@ button:active:not(:disabled), .m3-clickable:active {
     color: #0f172a;
 }
 
+/* Barra Sticky de Navegación M3 */
+#sticky-tabs-header {
+    position: sticky;
+    top: 4rem;
+    z-index: 30;
+}
+
 /* Cápsula de Pestañas M3 */
 .m3-tabs-bar {
     background-color: rgba(226, 232, 240, 0.7);

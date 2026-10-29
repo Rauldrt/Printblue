@@ -143,6 +143,15 @@ window.handleAiImageUpload = handleAiImageUpload;
 window.confirmAndApplyAiData = confirmAndApplyAiData;
 window.saveAiSettings = saveAiSettings;
 window.refreshAiModels = refreshAiModels;
+window.handleHeaderNew = function() {
+    const batchTab = document.getElementById('tab-batch');
+    if (batchTab && !batchTab.classList.contains('hidden')) {
+        addBatchRow();
+        showToast('Fila agregada al lote', 'info');
+    } else {
+        clearSingleLabelForm();
+    }
+};
 
 // PWA Install Prompt
 let deferredInstallPrompt = null;

@@ -69,22 +69,28 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 no-print">
         
-        <!-- Pestañas de Navegación M3 (Segmented Capsule Bar) -->
-        <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <!-- Pestañas de Navegación M3 (Segmented Capsule Bar) Sticky -->
+        <div id="sticky-tabs-header" class="sticky top-16 z-30 bg-slate-50/95 backdrop-blur-md -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 py-2.5 -mt-4 sm:-mt-6 lg:-mt-8 mb-5 border-b border-slate-200/80 transition-all flex items-center justify-between gap-3">
             <div class="m3-tabs-bar shadow-2xs">
                 <button onclick="switchTab('single')" id="tab-btn-single" class="tab-btn m3-tab-pill active">
                     <i class="fa-solid fa-tag text-xs"></i>
-                    <span>Etiqueta Única</span>
+                    <span>Única</span>
                 </button>
                 <button onclick="switchTab('batch')" id="tab-btn-batch" class="tab-btn m3-tab-pill">
                     <i class="fa-solid fa-layer-group text-xs"></i>
-                    <span>Impresión por Lote</span>
+                    <span>Lote</span>
                 </button>
             </div>
-            <button type="button" onclick="openSettingsFAB()" class="m3-btn-outlined py-2 px-3.5 text-xs font-semibold rounded-full flex items-center space-x-1.5 shadow-2xs hover:border-indigo-400 active:scale-95" title="Abrir Ajustes de Papel, Calibración y Bluetooth">
-                <i class="fa-solid fa-sliders text-indigo-600"></i>
-                <span class="hidden sm:inline">Ajustes & Calibración</span>
-            </button>
+            
+            <!-- Acciones Rápidas Sticky: IA y Nuevo (Solo Iconos) -->
+            <div class="flex items-center space-x-2">
+                <button type="button" onclick="openAiScanModal()" title="Escanear y autorrellenar con IA" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white flex items-center justify-center shadow-xs transition-transform active:scale-95" aria-label="Escanear con IA">
+                    <i class="fa-solid fa-wand-magic-sparkles text-xs sm:text-sm"></i>
+                </button>
+                <button type="button" onclick="handleHeaderNew()" title="Nueva etiqueta en blanco / Agregar fila" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full m3-btn-outlined flex items-center justify-center text-slate-700 hover:text-indigo-600 hover:border-indigo-400 bg-white shadow-2xs transition-transform active:scale-95" aria-label="Nuevo">
+                    <i class="fa-solid fa-plus text-sm sm:text-base"></i>
+                </button>
+            </div>
         </div>
 
         <!-- SECCIÓN 1: ETIQUETA ÚNICA (Diseñador M3) -->
@@ -97,14 +103,6 @@
                         <span id="saved-labels-count-badge" class="hidden text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-full">0 guardadas</span>
                     </div>
                     <div class="flex items-center space-x-1.5">
-                        <button type="button" onclick="openAiScanModal()" title="Escanear y autorrellenar con IA" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-3 py-1.5 rounded-full text-xs font-bold transition flex items-center space-x-1.5 shadow-2xs active:scale-95">
-                            <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
-                            <span>Escanear con IA</span>
-                        </button>
-                        <button type="button" onclick="clearSingleLabelForm()" title="Nueva etiqueta en blanco" class="m3-btn-outlined px-2.5 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1 active:scale-95">
-                            <i class="fa-solid fa-plus text-[10px]"></i>
-                            <span>Nueva</span>
-                        </button>
                         <button type="button" onclick="openSavedLabelsModal()" title="Abrir catálogo de etiquetas guardadas" class="m3-btn-tonal px-3 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 active:scale-95">
                             <i class="fa-solid fa-bookmark text-indigo-600 text-xs"></i>
                             <span>Mis Guardadas</span>
