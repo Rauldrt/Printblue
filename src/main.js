@@ -233,7 +233,11 @@ export function switchTab(tabName) {
         }
     }
 
-    if (tabName === 'single') updatePreview();
+    if (tabName === 'single') {
+        updatePreview();
+    } else {
+        updateDynamicButtons();
+    }
 }
 
 window.addEventListener('keydown', (e) => {

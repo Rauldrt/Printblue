@@ -158,30 +158,44 @@ function renderSingleLabelInto(container, isModal = false) {
  * - Botón "Vista Previa e Impresión" en móviles (aparece solo cuando hay nombre Y código)
  */
 export function updateDynamicButtons() {
+    const singleTab = document.getElementById('tab-single');
+    const isSingleTabActive = singleTab && !singleTab.classList.contains('hidden');
+
     const title = (document.getElementById('inp-title')?.value || '').trim();
     const code = (document.getElementById('inp-code')?.value || '').trim();
-    const hasRequiredData = title.length > 0 && code.length > 0;
+    const hasRequiredData = isSingleTabActive && title.length > 0 && code.length > 0;
 
-    const saveBtn = document.getElementById('btn-save-label');
-    const previewBtn = document.getElementById('btn-open-preview-modal');
+    const desktopSaveBtn = document.getElementById('btn-save-label');
+    const stickySaveBtn = document.getElementById('btn-sticky-save');
+    const stickyPreviewBtn = document.getElementById('btn-sticky-preview');
 
-    if (saveBtn) {
+    if (desktopSaveBtn) {
         if (hasRequiredData) {
-            saveBtn.classList.remove('hidden');
-            saveBtn.classList.add('flex');
+            desktopSaveBtn.classList.remove('hidden');
+            desktopSaveBtn.classList.add('flex');
         } else {
-            saveBtn.classList.add('hidden');
-            saveBtn.classList.remove('flex');
+            desktopSaveBtn.classList.add('hidden');
+            desktopSaveBtn.classList.remove('flex');
         }
     }
 
-    if (previewBtn) {
+    if (stickySaveBtn) {
         if (hasRequiredData) {
-            previewBtn.classList.remove('hidden');
-            previewBtn.classList.add('flex');
+            stickySaveBtn.classList.remove('hidden');
+            stickySaveBtn.classList.add('flex');
         } else {
-            previewBtn.classList.add('hidden');
-            previewBtn.classList.remove('flex');
+            stickySaveBtn.classList.add('hidden');
+            stickySaveBtn.classList.remove('flex');
+        }
+    }
+
+    if (stickyPreviewBtn) {
+        if (hasRequiredData) {
+            stickyPreviewBtn.classList.remove('hidden');
+            stickyPreviewBtn.classList.add('flex');
+        } else {
+            stickyPreviewBtn.classList.add('hidden');
+            stickyPreviewBtn.classList.remove('flex');
         }
     }
 }
