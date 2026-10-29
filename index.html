@@ -82,7 +82,7 @@
                 </button>
             </div>
             
-            <!-- Acciones Rápidas Sticky: IA y Nuevo (Solo Iconos) -->
+            <!-- Acciones Rápidas Sticky: IA, Nuevo y Guardadas (Solo Iconos con Badges) -->
             <div class="flex items-center space-x-2">
                 <button type="button" onclick="openAiScanModal()" title="Escanear y autorrellenar con IA" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white flex items-center justify-center shadow-xs transition-transform active:scale-95" aria-label="Escanear con IA">
                     <i class="fa-solid fa-wand-magic-sparkles text-xs sm:text-sm"></i>
@@ -90,48 +90,23 @@
                 <button type="button" onclick="handleHeaderNew()" title="Nueva etiqueta en blanco / Agregar fila" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full m3-btn-outlined flex items-center justify-center text-slate-700 hover:text-indigo-600 hover:border-indigo-400 bg-white shadow-2xs transition-transform active:scale-95" aria-label="Nuevo">
                     <i class="fa-solid fa-plus text-sm sm:text-base"></i>
                 </button>
+                <button type="button" onclick="openSavedLabelsModal()" title="Mis Etiquetas Guardadas" class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full m3-btn-tonal flex items-center justify-center text-indigo-700 bg-indigo-50/90 hover:bg-indigo-100 border border-indigo-200/80 shadow-2xs transition-transform active:scale-95" aria-label="Etiquetas Guardadas">
+                    <i class="fa-solid fa-bookmark text-xs sm:text-sm text-indigo-600"></i>
+                    <span id="saved-labels-count-badge" class="hidden absolute -top-1.5 -right-1.5 min-w-[19px] h-[19px] px-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-[10px] font-black rounded-full flex items-center justify-center ring-2 ring-white shadow-xs leading-none">0</span>
+                </button>
             </div>
         </div>
+
+        <!-- Barra de Sugerencias de Etiquetas Recientes Fuera del Card (con Gradiente) -->
+        <div id="recent-saved-labels-bar" class="hidden mb-6"></div>
 
         <!-- SECCIÓN 1: ETIQUETA ÚNICA (Diseñador M3) -->
         <div id="tab-single" class="tab-content grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             <div class="lg:col-span-5 m3-card p-6 space-y-5 rounded-3xl">
-                <div class="border-b border-slate-100 pb-3 flex items-center justify-between flex-wrap gap-2">
-                    <div class="flex items-center space-x-2">
-                        <h2 class="text-base font-bold text-slate-900">Datos del Producto</h2>
-                        <span id="saved-labels-count-badge" class="hidden text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-full">0 guardadas</span>
-                    </div>
-                    <div class="flex items-center space-x-1.5">
-                        <button type="button" onclick="openSavedLabelsModal()" title="Abrir catálogo de etiquetas guardadas" class="m3-btn-tonal px-3 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 active:scale-95">
-                            <i class="fa-solid fa-bookmark text-indigo-600 text-xs"></i>
-                            <span>Mis Guardadas</span>
-                        </button>
-                    </div>
+                <div class="border-b border-slate-100 pb-3">
+                    <h2 class="text-base font-bold text-slate-900">Datos del Producto</h2>
                 </div>
-
-                <!-- Banner Inteligente de Escaneo con IA M3 -->
-                <div class="bg-gradient-to-r from-indigo-50/90 via-purple-50/80 to-pink-50/90 p-3.5 rounded-2xl border border-indigo-100 flex items-center justify-between gap-2 shadow-2xs transition hover:shadow-xs">
-                    <div class="flex items-center space-x-2.5 min-w-0">
-                        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center text-xs shadow-xs shrink-0">
-                            <i class="fa-solid fa-camera"></i>
-                        </div>
-                        <div class="truncate">
-                            <p class="text-xs font-bold text-slate-900 leading-tight flex items-center space-x-1">
-                                <span>Autorrellenar con IA</span>
-                                <span class="bg-purple-100 text-purple-700 text-[9px] font-black px-1.5 py-0.2 rounded-full">Gemini</span>
-                            </p>
-                            <p class="text-[10px] text-slate-500 truncate">Sube o saca una foto a tu producto o código</p>
-                        </div>
-                    </div>
-                    <button type="button" onclick="openAiScanModal()" class="shrink-0 bg-white hover:bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold px-3 py-1.5 rounded-full shadow-2xs transition flex items-center space-x-1 active:scale-95">
-                        <i class="fa-solid fa-wand-magic-sparkles text-purple-600 text-[10px]"></i>
-                        <span>Escanear</span>
-                    </button>
-                </div>
-
-                <!-- Barra rápida de etiquetas recientemente guardadas -->
-                <div id="recent-saved-labels-bar" class="hidden pb-1 -mt-2"></div>
 
                 <div class="space-y-4">
                     <!-- Nombre del Producto -->

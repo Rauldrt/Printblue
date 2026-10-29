@@ -206,6 +206,15 @@ export function switchTab(tabName) {
         history.replaceState(null, null, `#${tabName}`);
     }
 
+    const recentBar = document.getElementById('recent-saved-labels-bar');
+    if (recentBar) {
+        if (tabName === 'batch') {
+            recentBar.classList.add('hidden');
+        } else {
+            updateSavedLabelsUI();
+        }
+    }
+
     if (tabName === 'single') updatePreview();
 }
 

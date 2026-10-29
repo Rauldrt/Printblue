@@ -132,6 +132,7 @@ export function loadSavedLabel(id) {
 
     activeEditingLabelId = label.id;
 
+    if (window.switchTab) window.switchTab('single');
     updatePreview();
     updateSavedLabelsUI();
     closeSavedLabelsModal();
@@ -378,40 +379,50 @@ export function renderSavedLabelsModal() {
 export function updateSavedLabelsUI() {
     const labels = getSavedLabels();
     
-    // 1. Badge contador en la cabecera del formulario
+    // 1. Badge contador dinámico en el botón de la barra sticky
     const countBadge = document.getElementById('saved-labels-count-badge');
     if (countBadge) {
         if (labels.length > 0) {
-            countBadge.innerText = `${labels.length} guardada${labels.length === 1 ? '' : 's'}`;
+            countBadge.innerText = labels.length > 99 ? '99+' : String(labels.length);
             countBadge.classList.remove('hidden');
         } else {
             countBadge.classList.add('hidden');
         }
     }
 
-    // 2. Chip bar de etiquetas recientes (últimas 3)
+    // 2. Chip bar de etiquetas recientes con gradiente (fuera del card)
     const recentBar = document.getElementById('recent-saved-labels-bar');
     if (recentBar) {
         if (labels.length > 0) {
             recentBar.classList.remove('hidden');
             const recent = labels.slice(0, 3);
             recentBar.innerHTML = `
-                <div class="flex items-center justify-between mb-1.5 text-[11px] text-slate-500 font-medium">
-                    <span class="flex items-center space-x-1">
-                        <i class="fa-solid fa-clock-rotate-left text-indigo-500"></i>
+                <div class="bg-gradient-to-r from-indigo-50/90 via-purple-50/80 to-pink-50/70 border border-indigo-100/90 p-3 sm:p-3.5 rounded-2xl shadow-2xs backdrop-blur-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all">
+                    <div class="flex items-center space-x-2 text-xs font-bold text-slate-800 shrink-0">
+                        <div class="w-6 h-6 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center text-[10px] shadow-2xs">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </div>
                         <span>Reutilizar reciente:</span>
-                    </span>
-                    <button type="button" onclick="openSavedLabelsModal()" class="text-indigo-600 hover:underline font-semibold text-[11px]">
-                        Ver todas (${labels.length})
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 flex-1">
+                        ${recent.map(l => {
+                            const isActive = activeEditingLabelId === l.id;
+                            return `
+                                <button type="button" onclick="loadSavedLabel('${l.id}')" class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all duration-200 shadow-2xs active:scale-95 ${
+                                    isActive 
+                                    ? 'bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 text-white border-transparent shadow-xs font-bold ring-2 ring-indigo-400/40' 
+                                    : 'bg-white hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 text-slate-800 hover:text-indigo-700 border-indigo-200/80 hover:border-indigo-300'
+                                }">
+                                    <span class="truncate max-w-[130px] sm:max-w-[160px]">${escapeHtml(l.title || l.code)}</span>
+                                    ${l.price ? `<span class="px-1.5 py-0.5 rounded-md text-[10px] font-bold ${isActive ? 'bg-white/20 text-white' : 'bg-indigo-50 text-indigo-700'}">${escapeHtml(l.currency || '$')}${escapeHtml(l.price)}</span>` : ''}
+                                </button>
+                            `;
+                        }).join('')}
+                    </div>
+                    <button type="button" onclick="openSavedLabelsModal()" class="text-indigo-600 hover:text-indigo-800 font-bold text-xs flex items-center space-x-1 shrink-0 self-end sm:self-auto hover:underline">
+                        <span>Ver todas (${labels.length})</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
                     </button>
-                </div>
-                <div class="flex flex-wrap gap-1.5">
-                    ${recent.map(l => `
-                        <button type="button" onclick="loadSavedLabel('${l.id}')" class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-xs border ${activeEditingLabelId === l.id ? 'bg-indigo-600 text-white border-indigo-600 font-bold' : 'bg-slate-50 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border-slate-200'} transition shadow-2xs">
-                            <span class="truncate max-w-[120px] font-medium">${escapeHtml(l.title || l.code)}</span>
-                            ${l.price ? `<span class="opacity-80 text-[10px]">${escapeHtml(l.currency || '$')}${escapeHtml(l.price)}</span>` : ''}
-                        </button>
-                    `).join('')}
                 </div>
             `;
         } else {
