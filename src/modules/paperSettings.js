@@ -331,13 +331,14 @@ export function toggleFabSpeedDial() {
     const speedDial = document.getElementById('m3-fab-speed-dial');
     const backdrop = document.getElementById('m3-speed-dial-backdrop');
     const icon = document.getElementById('m3-fab-icon');
+    const trigger = document.querySelector('.m3-fab-trigger-btn');
     if (!speedDial) return;
 
-    const isHidden = speedDial.classList.contains('hidden');
-    if (isHidden) {
-        speedDial.classList.remove('hidden');
-        speedDial.classList.add('flex');
-        if (backdrop) backdrop.classList.remove('hidden');
+    const isOpen = speedDial.classList.contains('is-open');
+    if (!isOpen) {
+        speedDial.classList.add('is-open');
+        if (backdrop) backdrop.classList.add('is-active');
+        if (trigger) trigger.classList.add('fab-is-active');
         if (icon) {
             icon.classList.remove('fa-sliders');
             icon.classList.add('fa-xmark');
@@ -351,11 +352,12 @@ export function closeFabSpeedDial() {
     const speedDial = document.getElementById('m3-fab-speed-dial');
     const backdrop = document.getElementById('m3-speed-dial-backdrop');
     const icon = document.getElementById('m3-fab-icon');
+    const trigger = document.querySelector('.m3-fab-trigger-btn');
     if (speedDial) {
-        speedDial.classList.add('hidden');
-        speedDial.classList.remove('flex');
+        speedDial.classList.remove('is-open');
     }
-    if (backdrop) backdrop.classList.add('hidden');
+    if (backdrop) backdrop.classList.remove('is-active');
+    if (trigger) trigger.classList.remove('fab-is-active');
     if (icon) {
         icon.classList.remove('fa-xmark');
         icon.classList.add('fa-sliders');

@@ -169,11 +169,22 @@ window.confirmAndApplyAiData = confirmAndApplyAiData;
 window.saveAiSettings = saveAiSettings;
 window.refreshAiModels = refreshAiModels;
 window.handleHeaderNew = function() {
+    closeFabSpeedDial();
     const batchTab = document.getElementById('tab-batch');
     const designerTab = document.getElementById('tab-designer');
+
     if (batchTab && !batchTab.classList.contains('hidden')) {
         addBatchRow();
         showToast('Fila agregada al lote', 'info');
+        setTimeout(() => {
+            const inputs = document.querySelectorAll('#batch-table-body input[data-field="title"]');
+            const lastInput = inputs[inputs.length - 1];
+            if (lastInput) {
+                lastInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                lastInput.focus();
+                if (typeof lastInput.select === 'function') lastInput.select();
+            }
+        }, 120);
     } else if (designerTab && !designerTab.classList.contains('hidden')) {
         designerState.headerText = '';
         designerState.subHeaderText = '';
@@ -183,16 +194,25 @@ window.handleHeaderNew = function() {
         syncDesignerFormFromState();
         renderDesignerPreview();
         showToast('Plantilla limpia en blanco', 'info');
+        setTimeout(() => {
+            const headerInp = document.getElementById('inp-designer-header');
+            if (headerInp) {
+                headerInp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                headerInp.focus();
+                if (typeof headerInp.select === 'function') headerInp.select();
+            }
+        }, 120);
     } else {
         if (window.switchTab) window.switchTab('single');
         clearSingleLabelForm();
         setTimeout(() => {
             const titleInp = document.getElementById('inp-title');
             if (titleInp) {
+                titleInp.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 titleInp.focus();
                 if (typeof titleInp.select === 'function') titleInp.select();
             }
-        }, 80);
+        }, 120);
     }
 };
 window.toggleExtrasSubcard = toggleExtrasSubcard;
