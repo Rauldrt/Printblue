@@ -385,7 +385,7 @@ button:active:not(:disabled), .m3-clickable:active {
 /* Barra Sticky de Navegación M3 */
 #sticky-tabs-header {
     position: sticky;
-    top: 4rem;
+    top: 0;
     z-index: 30;
 }
 
