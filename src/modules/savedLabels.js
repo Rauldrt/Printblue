@@ -449,9 +449,9 @@ export function updateSavedLabelsUI() {
     if (btnSaveText) {
         btnSaveText.innerText = activeEditingLabelId ? 'Actualizar Guardada' : 'Guardar Etiqueta';
     }
-    const btnStickySave = document.getElementById('btn-sticky-save');
-    if (btnStickySave) {
-        btnStickySave.title = activeEditingLabelId ? 'Actualizar Guardada' : 'Guardar Etiqueta';
+    const btnBottomSave = document.getElementById('btn-bottom-save');
+    if (btnBottomSave) {
+        btnBottomSave.title = activeEditingLabelId ? 'Actualizar Guardada' : 'Guardar Etiqueta';
     }
 }
 

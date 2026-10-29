@@ -1,0 +1,12 @@
+<!-- Dock Dinámico de Acciones Flotante en el Pie de la App (Solo Móviles / Pantallas Pequeñas) -->
+<div id="mobile-bottom-dock" class="fixed bottom-4 left-4 z-40 lg:hidden hidden items-center space-x-2 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-2xl shadow-xl border border-slate-700/80 transition-all duration-300">
+    <!-- Botón Vista Previa e Impresión (Icono) -->
+    <button type="button" id="btn-bottom-preview" onclick="openPreviewModal()" title="Ver Vista Previa e Impresión" class="w-11 h-11 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white flex items-center justify-center shadow-md active:scale-95 transition-transform" aria-label="Vista Previa e Impresión">
+        <i class="fa-solid fa-eye text-sm"></i>
+    </button>
+
+    <!-- Botón Guardar Etiqueta (Icono) -->
+    <button type="button" id="btn-bottom-save" onclick="saveCurrentSingleLabel()" title="Guardar Etiqueta" class="w-11 h-11 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center shadow-md active:scale-95 transition-transform" aria-label="Guardar Etiqueta">
+        <i class="fa-solid fa-floppy-disk text-sm"></i>
+    </button>
+</div>

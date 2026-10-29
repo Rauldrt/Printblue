@@ -166,8 +166,7 @@ export function updateDynamicButtons() {
     const hasRequiredData = isSingleTabActive && title.length > 0 && code.length > 0;
 
     const desktopSaveBtn = document.getElementById('btn-save-label');
-    const stickySaveBtn = document.getElementById('btn-sticky-save');
-    const stickyPreviewBtn = document.getElementById('btn-sticky-preview');
+    const mobileBottomDock = document.getElementById('mobile-bottom-dock');
 
     if (desktopSaveBtn) {
         if (hasRequiredData) {
@@ -179,23 +178,13 @@ export function updateDynamicButtons() {
         }
     }
 
-    if (stickySaveBtn) {
+    if (mobileBottomDock) {
         if (hasRequiredData) {
-            stickySaveBtn.classList.remove('hidden');
-            stickySaveBtn.classList.add('flex');
+            mobileBottomDock.classList.remove('hidden');
+            mobileBottomDock.classList.add('flex');
         } else {
-            stickySaveBtn.classList.add('hidden');
-            stickySaveBtn.classList.remove('flex');
-        }
-    }
-
-    if (stickyPreviewBtn) {
-        if (hasRequiredData) {
-            stickyPreviewBtn.classList.remove('hidden');
-            stickyPreviewBtn.classList.add('flex');
-        } else {
-            stickyPreviewBtn.classList.add('hidden');
-            stickyPreviewBtn.classList.remove('flex');
+            mobileBottomDock.classList.add('hidden');
+            mobileBottomDock.classList.remove('flex');
         }
     }
 }

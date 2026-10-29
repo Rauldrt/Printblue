@@ -11,18 +11,8 @@
         </button>
     </div>
     
-    <!-- Acciones Rápidas Sticky: Vista Previa, Guardar, IA, Nuevo y Guardadas (Solo Iconos con Badges) -->
+    <!-- Acciones Rápidas Sticky: IA, Nuevo y Guardadas (Solo Iconos con Badges) -->
     <div class="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
-        <!-- Botón Dinámico en Móvil: Vista Previa e Impresión -->
-        <button type="button" id="btn-sticky-preview" onclick="openPreviewModal()" title="Ver Vista Previa e Impresión" class="hidden lg:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white items-center justify-center shadow-xs transition-transform active:scale-95" aria-label="Vista Previa e Impresión">
-            <i class="fa-solid fa-eye text-xs"></i>
-        </button>
-
-        <!-- Botón Dinámico en Móvil: Guardar Etiqueta -->
-        <button type="button" id="btn-sticky-save" onclick="saveCurrentSingleLabel()" title="Guardar Etiqueta" class="hidden lg:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white items-center justify-center shadow-xs transition-transform active:scale-95" aria-label="Guardar Etiqueta">
-            <i class="fa-solid fa-floppy-disk text-xs"></i>
-        </button>
-
         <!-- Botón IA -->
         <button type="button" onclick="openAiScanModal()" title="Escanear y autorrellenar con IA" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white flex items-center justify-center shadow-xs transition-transform active:scale-95" aria-label="Escanear con IA">
             <i class="fa-solid fa-wand-magic-sparkles text-xs sm:text-sm"></i>
